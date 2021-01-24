@@ -20,6 +20,8 @@ from utils.saver import Saver
 from utils.metrics import Evaluator
 from utils.pytorchtools import EarlyStopping
 import statistics
+from torchsummary import summary
+
 
 def eval_model(model, val_loader):
     model.eval()
@@ -71,7 +73,7 @@ if __name__ == '__main__':
     """
     parser = argparse.ArgumentParser(description='Train a FPN Semantic Segmentation network')
     parser.add_argument('--dataset', default='Pascal', type=str, help='training dataset, Cityscapes, Coco, Pascal')
-    parser.add_argument('--model', type=str, default="PSPNet", help='FPN/FCN/DeConvNet/UNet/SegNet/PSPNet/DeepLabV3/DeepLabv3_plus/') 
+    parser.add_argument('--model', type=str, default="FPN", help='FPN/FCN/DeConvNet/UNet/SegNet/PSPNet/DeepLabV3/DeepLabv3_plus/') 
     parser.add_argument('--start_epoch', default=1, type=int, help='starting epoch')
     parser.add_argument('--epochs', default=5
     , type=int, help='number of iterations to train' )
@@ -131,9 +133,6 @@ if __name__ == '__main__':
         train_set = Cityscapes.CityscapesSegmentation(opt, split='train')
         val_set = Cityscapes.CityscapesSegmentation(opt, split='val')
         test_set = Cityscapes.CityscapesSegmentation(opt, split='test')
-        # opt.base_size = 1024
-        # opt.crop_size = 512
-
         opt.base_size = 128
         opt.crop_size = 64
     if opt.dataset == 'Coco':
@@ -154,6 +153,7 @@ if __name__ == '__main__':
     val_loader = DataLoader(val_set, batch_size=opt.batch_size, shuffle=False, drop_last=True, **kwargs)
 
     # Define network
+    model = None
     if opt.model == 'FPN':
         model = FPN(num_class, back_bone_name= 'resnet101')
         opt.checkname = 'FPN-' + model.back_bone_name
@@ -181,7 +181,7 @@ if __name__ == '__main__':
         model = DeepLabv3_plus(nInputChannels=3, n_classes=num_class, os=16, pretrained=True)  
         opt.checkname = opt.model
         
-
+    summary(model.cuda(), (3, opt.base_size, opt.crop_size))
     # multiple mGPUs
     print("device : ", device)
     if device.type == 'cpu':

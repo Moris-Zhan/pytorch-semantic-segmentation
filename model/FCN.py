@@ -54,13 +54,14 @@ class VGGNet(VGG):
                 print(name, param.size())
 
     def forward(self, x):
-        output = {}
-
+        # output = {}
+        output = []
         # get the output of each maxpooling layer (5 maxpool in VGG net)
         for idx in range(len(self.ranges)):
             for layer in range(self.ranges[idx][0], self.ranges[idx][1]):
                 x = self.features[layer](x)
-            output["x%d"%(idx+1)] = x
+            # output["x%d"%(idx+1)] = x
+            output.append(x)
 
         return output
 
@@ -189,12 +190,12 @@ class FCNs(nn.Module):
         self.classifier = nn.Conv2d(32, n_class, kernel_size=1)
 
     def forward(self, x):
-        output = self.pretrained_net(x)
-        x5 = output['x5']  # size=(N, 512, x.H/32, x.W/32)
-        x4 = output['x4']  # size=(N, 512, x.H/16, x.W/16)
-        x3 = output['x3']  # size=(N, 256, x.H/8,  x.W/8)
-        x2 = output['x2']  # size=(N, 128, x.H/4,  x.W/4)
-        x1 = output['x1']  # size=(N, 64, x.H/2,  x.W/2)
+        x1, x2, x3, x4, x5 = self.pretrained_net(x)
+        # x5 = output['x5']  # size=(N, 512, x.H/32, x.W/32)
+        # x4 = output['x4']  # size=(N, 512, x.H/16, x.W/16)
+        # x3 = output['x3']  # size=(N, 256, x.H/8,  x.W/8)
+        # x2 = output['x2']  # size=(N, 128, x.H/4,  x.W/4)
+        # x1 = output['x1']  # size=(N, 64, x.H/2,  x.W/2)
 
         score = self.bn1(self.relu(self.deconv1(x5)))     # size=(N, 512, x.H/16, x.W/16)
         score = score + x4                                # element-wise add, size=(N, 512, x.H/16, x.W/16)
