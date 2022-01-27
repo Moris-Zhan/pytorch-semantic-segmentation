@@ -128,13 +128,13 @@ python predict.py --model PSPNet --experiment_dir "run\Cityscapes\PSPNet\experim
 ```
 
 ## Reference
-- U-Net :  https://github.com/milesial/Pytorch-UNet/blob/master/unet/unet_model.py
-- SegNet : https://github.com/Charmve/Semantic-Segmentation-PyTorch/blob/7095051118c79c322df8b98ab4e59caeb61c57a0/models/seg_net.py
-- DeconvNet:   https://github.com/renkexinmay/SemanticSegmentation-FCN-DeconvNet/blob/master/model.py
-- FCN: https://github.com/pochih/FCN-pytorch/blob/master/python/fcn.py
-- PSPNet: https://github.com/PhanTom2003/PSPnet/blob/master/PSPnet.py
-- DeepLabV3: https://github.com/fregu856/deeplabv3/blob/master/model/deeplabv3.py
-- DeepLabv3_plus : https://github.com/MLearing/Pytorch-DeepLab-v3-plus/blob/master/networks/deeplab_resnet.py
+- U-Net :  https://github.com/bubbliiiing/unet-pytorch
+- SegNet : https://github.com/yassouali/pytorch-segmentation/blob/4c51ae43c791a37b0fb80c536b6614ff971c74e8/models/segnet.py
+- DeconvNet:   ?
+- FCN: https://github.com/yassouali/pytorch-segmentation/blob/4c51ae43c791a37b0fb80c536b6614ff971c74e8/models/fcn.py
+- PSPNet: https://github.com/bubbliiiing/pspnet-pytorch
+- DeepLabV3: ?
+- DeepLabv3_plus : https://github.com/bubbliiiing/deeplabv3-plus-pytorch
 - Dataset Preprare: https://github.com/jfzhang95/pytorch-deeplab-xception/tree/master/dataloaders/datasets
 https://towardsdatascience.com/master-the-coco-dataset-for-semantic-image-segmentation-part-1-of-2-732712631047
 - Frame & FPN : https://github.com/Andy-zhujunwen/FPN-Semantic-segmentation
