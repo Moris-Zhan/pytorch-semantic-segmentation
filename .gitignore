@@ -128,3 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 *.png
+logs*
+miou_out/
+pred_out/
+*.pth
+*.tar

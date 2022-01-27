@@ -1,219 +1,158 @@
+#----------------------------------------------------#
+#   将单张图片预测、摄像头检测和FPS测试功能
+#   整合到了一个py文件中，通过指定mode进行模式的修改。
+#----------------------------------------------------#
+import time
 import os
+import cv2
 import numpy as np
-import argparse
+from PIL import Image
 
-import torch
-from torchvision.utils import save_image
-# from data.CamVid_loader import CamVidDataset
-from dataset.utils import decode_segmap, decode_seg_map_sequence
-from dataset import Cityscapes, Coco, Pascal
+# from deeplabv3_plus.deeplab import DeeplabV3 as Model
+# from pspnet.pspnet import PSPNet as Model
+# from unet.unet import Unet as Model
+from segnet.segnet import SegNet as Model
 
-from utils.metrics import Evaluator
+if __name__ == "__main__":
+    root_path = "D://WorkSpace//JupyterWorkSpace//DataSet//LANEdevkit"
+    # root_path = "D://WorkSpace//JupyterWorkSpace//DataSet//LANEdevkit"
+    # root_path = "D://WorkSpace//JupyterWorkSpace//DataSet//ICME2022"
+    #-------------------------------------------------------------------------#
+    #   如果想要修改对应种类的颜色，到generate函数里修改self.colors即可
+    #-------------------------------------------------------------------------#
+    model = Model()
+    #----------------------------------------------------------------------------------------------------------#
+    #   mode用于指定测试的模式：
+    #   'predict'表示单张图片预测，如果想对预测过程进行修改，如保存图片，截取对象等，可以先看下方详细的注释
+    #   'video'表示视频检测，可调用摄像头或者视频进行检测，详情查看下方注释。
+    #   'fps'表示测试fps，使用的图片是img里面的street.jpg，详情查看下方注释。
+    #   'dir_predict'表示遍历文件夹进行检测并保存。默认遍历img文件夹，保存img_out文件夹，详情查看下方注释。
+    #----------------------------------------------------------------------------------------------------------#
+    # mode = "predict"
+    mode = "video"
+    #----------------------------------------------------------------------------------------------------------#
+    #   video_path用于指定视频的路径，当video_path=0时表示检测摄像头
+    #   想要检测视频，则设置如video_path = "xxx.mp4"即可，代表读取出根目录下的xxx.mp4文件。
+    #   video_save_path表示视频保存的路径，当video_save_path=""时表示不保存
+    #   想要保存视频，则设置如video_save_path = "yyy.mp4"即可，代表保存为根目录下的yyy.mp4文件。
+    #   video_fps用于保存的视频的fps
+    #   video_path、video_save_path和video_fps仅在mode='video'时有效
+    #   保存视频时需要ctrl+c退出或者运行到最后一帧才会完成完整的保存步骤。
+    #----------------------------------------------------------------------------------------------------------#
+    # video_path      = 0
+    # video_save_path = ""
+    video_path      = os.path.join(root_path, "Drive-View-Kaohsiung-Taiwan.mp4")
+    # video_path      = os.path.join(root_path, "Videos/raw_footage_1_colombo_AdobeCreativeCloudExpress.mp4")
 
-from model.FPN import FPN
-from model.UNet import UNet
-from model.SegNet import SegNet
-from model.FCN import FCNs
-from model.DeConvNet import DeConvNet
-from model.PSPNet import PSPNet
-from model.DeepLabV3 import DeepLabV3
-from model.DeepLabv3_plus import DeepLabv3_plus
-from torch.utils.data import DataLoader
-from torch.autograd import Variable
-from tqdm import tqdm
-from glob import glob
+    video_save_dir =os.path.join("pred_out", Model.__module__)
+    video_save_path = os.path.join(video_save_dir, os.path.basename(video_path))
+    if not os.path.exists(video_save_dir): os.makedirs(video_save_dir)
+    video_fps       = 25.0
+    #-------------------------------------------------------------------------#
+    #   test_interval用于指定测量fps的时候，图片检测的次数
+    #   理论上test_interval越大，fps越准确。
+    #-------------------------------------------------------------------------#
+    test_interval = 100
+    #-------------------------------------------------------------------------#
+    #   dir_origin_path指定了用于检测的图片的文件夹路径
+    #   dir_save_path指定了检测完图片的保存路径
+    #   dir_origin_path和dir_save_path仅在mode='dir_predict'时有效
+    #-------------------------------------------------------------------------#
+    dir_origin_path = "img/"
+    dir_save_path   = "img_out/"
 
-if __name__ == '__main__':
-    """
-    Parse input arguments
-    """
-    parser = argparse.ArgumentParser(description='Train a FPN Semantic Segmentation network')
-    parser.add_argument('--dataset', default='Cityscapes', type=str, help='training dataset, Cityscapes, Coco, Pascal')
-    # parser.add_argument('--net', type=str, default="FPN", help='FCN/SegNet/DeconvNet/UNet/PSPNet/DeepLabV3/DeepLabV3+/FPN') 
-    parser.add_argument('--model', type=str, default="PSPNet", help='FPN/FCN/DeConvNet/UNet/SegNet/PSPNet/DeepLabV3/DeepLabv3_plus/')
-    parser.add_argument('--start_epoch', help='starting epoch', default=1, type=int)
-    parser.add_argument('--epochs', help='number of iterations to train', default=2000, type=int)
-    parser.add_argument('--save_dir', help='directory to save models', default="D:\\disk\\midterm\\experiment\\code\\semantic\\FPN\\FPN\\run", type=str)
-    parser.add_argument('--num_workers', help='number of worker to load data', default=0, type=int)
-    # cuda
-    parser.add_argument('--cuda', help='whether use multiple GPUs', default=True, action='store_true')
-    # batch size
-    parser.add_argument('--batch_size', help='batch_size', default=2, type=int)
+    if mode == "predict":
+        '''
+        predict.py有几个注意点
+        1、该代码无法直接进行批量预测，如果想要批量预测，可以利用os.listdir()遍历文件夹，利用Image.open打开图片文件进行预测。
+        具体流程可以参考get_miou_prediction.py，在get_miou_prediction.py即实现了遍历。
+        2、如果想要保存，利用r_image.save("img.jpg")即可保存。
+        3、如果想要原图和分割图不混合，可以把blend参数设置成False。
+        4、如果想根据mask获取对应的区域，可以参考detect_image函数中，利用预测结果绘图的部分，判断每一个像素点的种类，然后根据种类获取对应的部分。
+        seg_img = np.zeros((np.shape(pr)[0],np.shape(pr)[1],3))
+        for c in range(self.num_classes):
+            seg_img[:, :, 0] += ((pr == c)*( self.colors[c][0] )).astype('uint8')
+            seg_img[:, :, 1] += ((pr == c)*( self.colors[c][1] )).astype('uint8')
+            seg_img[:, :, 2] += ((pr == c)*( self.colors[c][2] )).astype('uint8')
+        '''
+        while True:
+            img = input('Input image filename:')
+            try:
+                image = Image.open(img)
+            except:
+                print('Open Error! Try again!')
+                continue
+            else:
+                r_image = model.detect_image(image)
+                r_image.show()
 
-    # config optimization
-    parser.add_argument('--o', help='training optimizer', default='sgd', type=str)
-    parser.add_argument('--lr', help='starting learning rate', default=0.001, type=float)
-    parser.add_argument('--weight_decay', help='weight_decay', default=1e-5, type=float)
-    parser.add_argument('--lr_decay_step', help='step to do learning rate decay, uint is epoch', default=500, type=int)
-    parser.add_argument('--lr_decay_gamma', help='learning rate decay ratio', default=0.1, type=float)
+    elif mode == "video":
+        capture=cv2.VideoCapture(video_path)
+        if video_save_path!="":
+            fourcc = cv2.VideoWriter_fourcc(*'XVID')
+            # size = (int(capture.get(cv2.CAP_PROP_FRAME_WIDTH)), int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+            size = (1280, 720)
+            out = cv2.VideoWriter(video_save_path, fourcc, video_fps, size)
 
-    # set training session
-    parser.add_argument('--session', help='training session', default=1, type=int)
+        ref, frame = capture.read()
+        if not ref:
+            raise ValueError("未能正确读取摄像头（视频），请注意是否正确安装摄像头（是否正确填写视频路径）。")
 
-    # resume trained model
-    parser.add_argument('--resume', help='resume checkpoint or not', default=False, type=bool)
-    parser.add_argument('--checksession', help='checksession to load model', default=1, type=int)
-    parser.add_argument('--checkepoch', help='checkepoch to load model', default=1, type=int)
-    parser.add_argument('--checkpoint', help='checkpoint to load model', default=0, type=int)
+        fps = 0.0
+        while(True):
+            t1 = time.time()
+            # 读取某一帧
+            ref, frame = capture.read()
+            if not ref:
+                break
 
-    # log and display
-    parser.add_argument('--use_tfboard', help='whether use tensorflow tensorboard', default=True, type=bool)
+            frame = cv2.resize(frame, (1280, 720), interpolation = cv2.INTER_AREA)
+            # 格式转变，BGRtoRGB
+            frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
+            # 转变成Image
+            frame = Image.fromarray(np.uint8(frame))
+            # 进行检测
+            frame = np.array(model.detect_image(frame))
+            # RGBtoBGR满足opencv显示格式
+            frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
+            
+            fps  = ( fps + (1./(time.time()-t1)) ) / 2
+            print("fps= %.2f"%(fps))
+            frame = cv2.putText(frame, "fps= %.2f"%(fps), (0, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            
+            cv2.imshow("video",frame)
+            c= cv2.waitKey(1) & 0xff 
+            if video_save_path!="":
+                out.write(frame)
 
-    # configure validation
-    parser.add_argument('--no_val', help='not do validation', default=False, type=bool)
-    parser.add_argument('--eval_interval', help='iterval to do evaluate', default=2, type=int)
+            if c==27:
+                capture.release()
+                break
+        print("Video Detection Done!")
+        capture.release()
+        if video_save_path!="":
+            print("Save processed video to the path :" + video_save_path)
+            out.release()
+        cv2.destroyAllWindows()
 
-    # parser.add_argument('--base-size', type=int, default=512, help='base image size')
-    # parser.add_argument('--crop-size', type=int, default=512, help='crop image size')
-    
+    elif mode == "fps":
+        img = Image.open('img/street.jpg')
+        tact_time = model.get_FPS(img, test_interval)
+        print(str(tact_time) + ' seconds, ' + str(1/tact_time) + 'FPS, @batch_size 1')
+        
+    elif mode == "dir_predict":
+        import os
+        from tqdm import tqdm
 
-    # parser.add_argument('--batch_size', help='batch_size', default=1, type=int)
-    # parser.add_argument('--base_size', type=int, default=1024, help='base image size')
-    # parser.add_argument('--crop_size', type=int, default=512, help='crop image size')
-
-    parser.add_argument('--base_size', type=int, default=1024, help='base image size')
-    parser.add_argument('--crop_size', type=int, default=512, help='crop image size')
-
-    # test confit
-    parser.add_argument('--plot', help='wether plot test result image', default=False, type=bool)
-    parser.add_argument('--experiment_dir', help='dir of experiment', type=str, default = "run\Cityscapes\PSPNet\experiment_10")
-
-    opt = parser.parse_args()
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  
-
-    train_set, val_set, test_set = None, None, None
-    # Define Dataloader
-    if opt.dataset == 'Cityscapes':
-        val_set = Cityscapes.CityscapesSegmentation(opt, split='val')        
-    elif opt.dataset == 'Coco':
-        val_set = Coco.COCOSegmentation(opt, split='val')
-    elif opt.dataset == 'Pascal':
-        val_set = Pascal.VOCSegmentation(opt, split='val')
-        # Pascal.VOCSegmentation(opt, split='val')
-
-    num_class = val_set.NUM_CLASSES
-    save_image_path = './test/{}/'.format(opt.dataset)
-    if not os.path.exists(save_image_path): os.makedirs(save_image_path)
-    kwargs = {'num_workers': opt.num_workers, 'pin_memory': True}
-    val_loader = DataLoader(val_set, batch_size=opt.batch_size, shuffle=False, drop_last=True, **kwargs)
-
-
-    # Define network
-    model = None
-    if opt.model == 'FPN':
-        model = FPN(num_class, back_bone_name= 'resnet101')
-        opt.checkname = 'FPN-' + model.back_bone_name
-    elif opt.model == 'UNet':
-        model = UNet(n_channels=3, n_classes=num_class, bilinear=True)
-        opt.checkname = opt.model
-    elif opt.model == "FCN":
-        model = FCNs(n_class=num_class)
-        opt.checkname = opt.model
-    elif opt.model == "DeConvNet":
-        model = DeConvNet(n_class=num_class)
-        opt.checkname = opt.model
-    elif opt.model == 'SegNet':
-        model = SegNet(num_classes = num_class)
-        opt.checkname = opt.model
-    elif opt.model == 'PSPNet':
-        # batchnorm require batch >=2
-        model = PSPNet(n_classes = num_class, PSP_h = opt.base_size, PSP_w=opt.crop_size, Auxiliray=True)
-        opt.checkname = opt.model
-        opt.use_auxiliary = model.Auxiliray
-    elif opt.model == 'DeepLabV3':
-        model = DeepLabV3(num_classes = num_class)
-        opt.checkname = opt.model
-    elif opt.model == 'DeepLabv3_plus':
-        model = DeepLabv3_plus(nInputChannels=3, n_classes=num_class, os=16, pretrained=True)  
-        opt.checkname = opt.model
-
-    evaluator = Evaluator(num_class)
-
-
-    # Trained model path and name
-    experiment_dir = opt.experiment_dir
-    model_name = glob(os.path.join(opt.experiment_dir, "*.pkl"))[0]
-    load_name = os.path.join(experiment_dir, 'checkpoint.pth.tar')
-
-    # Load save/trained model
-    if not os.path.isfile(model_name):
-        raise RuntimeError("=> no model found at '{}'".format(model_name))
-    print('====>loading trained model from ' + model_name)
-    if not os.path.isfile(load_name):
-        raise RuntimeError("=> no checkpoint found at '{}'".format(load_name))
-    print('====>loading trained model from ' + load_name)
-
-    
-    if opt.model != 'PSPNet':
-        model = torch.load(model_name)
-    checkpoint = torch.load(load_name)
-
-    if opt.cuda:
-        model.load_state_dict(checkpoint['state_dict'])
-        model = model.cuda()
+        img_names = os.listdir(dir_origin_path)
+        for img_name in tqdm(img_names):
+            if img_name.lower().endswith(('.bmp', '.dib', '.png', '.jpg', '.jpeg', '.pbm', '.pgm', '.ppm', '.tif', '.tiff')):
+                image_path  = os.path.join(dir_origin_path, img_name)
+                image       = Image.open(image_path)
+                r_image     = model.detect_image(image)
+                if not os.path.exists(dir_save_path):
+                    os.makedirs(dir_save_path)
+                r_image.save(os.path.join(dir_save_path, img_name))
+                
     else:
-        model.load_state_dict(checkpoint['state_dict'])
-
-
-    # test
-    Acc = []
-    Acc_class = []
-    mIoU = []
-    FWIoU = []
-    results = []
-    orign_img = []        
-
-    with tqdm(total=len(val_loader)) as pbar:
-        for iter, batch in enumerate(val_loader):
-            imgs, targets = batch['image'], batch['label']        
-            imgs = Variable(imgs.to(device=device))
-            targets = Variable(targets.to(device=device))
-            if opt.model == 'PSPNet':
-                imgs = PSPNet.permute(imgs)
-                targets = PSPNet.permute(targets)
-
-            with torch.no_grad():
-                if opt.model == 'PSPNet':
-                    output, aux_output = model(imgs)
-                else:
-                    output = model(imgs)
-
-            pred = output.data.cpu().numpy()
-            pred = np.argmax(pred, axis=1)
-            targets = targets.cpu().numpy()
-            evaluator.add_batch(targets, pred)
-
-            # show result
-            pred_rgb = decode_seg_map_sequence(pred, opt.dataset)
-            orign_img.extend(imgs.cpu())
-            results.extend(pred_rgb)  
-            pbar.set_description('Pred Batch Images : %s' % ( iter * opt.batch_size))
-            pbar.update(1)
-            break
-
-    Acc = evaluator.Pixel_Accuracy()
-    Acc_class = evaluator.Pixel_Accuracy_Class()
-    mIoU = evaluator.Mean_Intersection_over_Union()
-    FWIoU = evaluator.Frequency_Weighted_Intersection_over_Union()
-
-    ratio = 0.3
-
-    # save Img
-    with tqdm(total= len(orign_img)) as pbar:
-        for idx, (img, pred) in enumerate(zip(orign_img, results)):
-            # merge = torch.cat([img.unsqueeze(0), pred.unsqueeze(0).type(torch.FloatTensor)], dim = 0)
-            img = img.mul_(ratio)
-            pred = pred.mul_(1 - ratio)
-            merge = img.add(pred.type(torch.FloatTensor))  
-            if opt.model == 'PSPNet':
-                merge = PSPNet.permute(merge)
-
-            save_image(merge, save_image_path + 'val{}_jpg.png'.format(idx))
-            pbar.set_description('Save Pred Images : %s' % ( idx ))
-            pbar.update(1)
-
-    print('Mean evaluate result on dataset {}'.format(opt.dataset))
-    print('Acc:{:.3f}\tAcc_class:{:.3f}\nmIoU:{:.3f}\tFWIoU:{:.3f}'.format(Acc, Acc_class, mIoU, FWIoU))
-
-
+        raise AssertionError("Please specify the correct mode: 'predict', 'video', 'fps' or 'dir_predict'.")
