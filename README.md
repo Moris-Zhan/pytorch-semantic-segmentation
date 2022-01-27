@@ -130,8 +130,8 @@ python predict.py --model PSPNet --experiment_dir "run\Cityscapes\PSPNet\experim
 ## Reference
 - U-Net :  https://github.com/bubbliiiing/unet-pytorch
 - SegNet : https://github.com/yassouali/pytorch-segmentation/blob/4c51ae43c791a37b0fb80c536b6614ff971c74e8/models/segnet.py
-- [x] DeconvNet: https://github.com/csgwon/pytorch-deconvnet/blob/master/models/vgg16_deconv.py
-- [x] FCN: https://github.com/yassouali/pytorch-segmentation/blob/4c51ae43c791a37b0fb80c536b6614ff971c74e8/models/fcn.py
+- DeconvNet: https://github.com/Jasonlee1995/DeconvNet/blob/main/Implementation/model.py
+- FCN: https://github.com/yassouali/pytorch-segmentation/blob/4c51ae43c791a37b0fb80c536b6614ff971c74e8/models/fcn.py
 - PSPNet: https://github.com/bubbliiiing/pspnet-pytorch
 - [x] FPN : https://github.com/Andy-zhujunwen/FPN-Semantic-segmentation/blob/master/FPN-Seg/model/FPN.py
 - [x] DeepLabV3: https://github.com/giovanniguidi/deeplabV3-PyTorch/blob/master/models/deeplab.py
