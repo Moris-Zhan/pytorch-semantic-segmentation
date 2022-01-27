@@ -11,7 +11,8 @@ from PIL import Image
 # from deeplabv3_plus.deeplab import DeeplabV3 as Model
 # from pspnet.pspnet import PSPNet as Model
 # from unet.unet import Unet as Model
-from segnet.segnet import SegNet as Model
+# from segnet.segnet import SegNet as Model
+from fcn.fcn import FCN as Model
 
 if __name__ == "__main__":
     root_path = "D://WorkSpace//JupyterWorkSpace//DataSet//LANEdevkit"

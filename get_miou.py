@@ -6,7 +6,8 @@ from tqdm import tqdm
 # from deeplabv3_plus.deeplab import DeeplabV3 as Model
 # from pspnet.pspnet import PSPNet as Model
 # from unet.unet import Unet as Model
-from segnet.segnet import SegNet as Model
+# from segnet.segnet import SegNet as Model
+from fcn.fcn import FCN as Model
 
 class DataType:
     VOC   = 0
@@ -18,6 +19,7 @@ class ModelType:
     PSPNET   = 1
     UNET      = 2  
     SEGNET    = 3 
+    FCN       = 4
 
 def check_model(o):
     str__ = str(o).split(".")[0].lower()
@@ -32,6 +34,8 @@ def check_model(o):
 
     elif "segnet" in str__: 
         return ModelType.SEGNET
+    elif "fcn" in str__: 
+        return ModelType.FCN
 
 '''
 进行指标评估需要注意以下几点：
@@ -40,6 +44,7 @@ def check_model(o):
 '''
 if __name__ == "__main__":
     #------------------------------#
+    root_path = "D://WorkSpace//JupyterWorkSpace"
     dataType = DataType.VOC
     #------------------------------#
     modelType = check_model(Model.__module__)
@@ -54,7 +59,10 @@ if __name__ == "__main__":
 
     elif modelType == ModelType.SEGNET: 
         from segnet.utils.utils_metrics import compute_mIoU, show_results
-    root_path = "D://WorkSpace//JupyterWorkSpace"
+
+    elif modelType == ModelType.FCN: 
+        from fcn.utils.utils_metrics import compute_mIoU, show_results
+    
     #---------------------------------------------------------------------------#
     #   miou_mode用于指定该文件运行时计算的内容
     #   miou_mode为0代表整个miou计算流程，包括获得预测结果、计算miou。
