@@ -98,7 +98,7 @@ The Cityscapes Dataset focuses on semantic understanding of urban street scenes.
 - **DeConvNet**
 - **UNet**
 - **SegNet**
-- **PSPNet (some err..)**
+- **PSPNet**
 - **DeepLabV3**
 - **DeepLabv3_plus**
 
