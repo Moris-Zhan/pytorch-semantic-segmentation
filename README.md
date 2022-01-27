@@ -130,14 +130,14 @@ python predict.py --model PSPNet --experiment_dir "run\Cityscapes\PSPNet\experim
 ## Reference
 - U-Net :  https://github.com/bubbliiiing/unet-pytorch
 - SegNet : https://github.com/yassouali/pytorch-segmentation/blob/4c51ae43c791a37b0fb80c536b6614ff971c74e8/models/segnet.py
-- DeconvNet:   ?
-- FCN: https://github.com/yassouali/pytorch-segmentation/blob/4c51ae43c791a37b0fb80c536b6614ff971c74e8/models/fcn.py
+- [x] DeconvNet: https://github.com/csgwon/pytorch-deconvnet/blob/master/models/vgg16_deconv.py
+- [x] FCN: https://github.com/yassouali/pytorch-segmentation/blob/4c51ae43c791a37b0fb80c536b6614ff971c74e8/models/fcn.py
 - PSPNet: https://github.com/bubbliiiing/pspnet-pytorch
-- DeepLabV3: ?
+- [x] FPN : https://github.com/Andy-zhujunwen/FPN-Semantic-segmentation/blob/master/FPN-Seg/model/FPN.py
+- [x] DeepLabV3: https://github.com/giovanniguidi/deeplabV3-PyTorch/blob/master/models/deeplab.py
 - DeepLabv3_plus : https://github.com/bubbliiiing/deeplabv3-plus-pytorch
 - Dataset Preprare: https://github.com/jfzhang95/pytorch-deeplab-xception/tree/master/dataloaders/datasets
 https://towardsdatascience.com/master-the-coco-dataset-for-semantic-image-segmentation-part-1-of-2-732712631047
-- Frame & FPN : https://github.com/Andy-zhujunwen/FPN-Semantic-segmentation
 - cityscapes: https://www.cityscapes-dataset.com/dataset-overview/#features
 - VOC2007: https://pjreddie.com/media/files/VOC2007_doc.pdf
 - VOC2012: https://pjreddie.com/media/files/VOC2012_doc.pdf
