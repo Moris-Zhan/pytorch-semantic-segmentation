@@ -7,11 +7,15 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 # from deeplabv3_plus.nets.deeplabv3_plus import DeepLab as Model
+# from deeplabv3.nets.deeplabv3 import DeepLab as Model
 # from pspnet.nets.pspnet import PSPNet as Model
 # from unet.nets.unet import Unet  as Model
-from segnet.nets.segnet import SegNet as Model
-# from fcn.nets.fcn import FCN as Model
+# from segnet.nets.segnet import SegNet as Model
+from fcn.nets.fcn import FCN as Model
 # from deconvnet.nets.deconvnet import DeconvNet as Model
+# from fpn.nets.fpn import FPN as Model
+
+
 
 class DataType:
     VOC   = 0
@@ -21,16 +25,21 @@ class DataType:
 
 class ModelType:
     DEEPLABV3_PLUS   = 0
-    PSPNET   = 1
-    UNET      = 2  
-    SEGNET    = 3 
-    FCN       = 4
-    DeconvNet = 5
+    DEEPLABV3        = 1
+    PSPNET           = 2
+    UNET             = 3 
+    SEGNET           = 4 
+    FCN              = 5
+    DeconvNet        = 6
+    FPN              = 7
+    
 
 def check_model(o):
     str__ = str(o).split(".")[0].lower()
-    if "deeplabv3" in str__: 
+    if "deeplabv3_plus" in str__: 
         return ModelType.DEEPLABV3_PLUS
+    elif "deeplabv3" in str__: 
+        return ModelType.DEEPLABV3
     elif "pspnet" in str__: 
         return ModelType.PSPNET
     elif "unet" in str__: 
@@ -41,6 +50,9 @@ def check_model(o):
         return ModelType.FCN 
     elif "deconvnet" in str__: 
         return ModelType.DeconvNet 
+    elif "fpn" in str__: 
+        return ModelType.FPN
+    
 
 def get_cls_weight(path):
     lines = []
@@ -181,6 +193,22 @@ if __name__ == "__main__":
         from deconvnet.utils.utils_fit import fit_one_epoch
         model_path = ""
         input_shape         = [512, 512] 
+
+    elif modelType == ModelType.FPN: 
+        from fpn.nets.fpn_training import weights_init
+        from fpn.utils.callbacks import LossHistory
+        from fpn.utils.dataloader import FPNDataset, fpn_dataset_collate
+        from fpn.utils.utils_fit import fit_one_epoch
+        model_path = ""
+        input_shape         = [512, 512] 
+
+    elif modelType == ModelType.DEEPLABV3:
+        from deeplabv3.nets.deeplabv3_training import weights_init
+        from deeplabv3.utils.callbacks import LossHistory
+        from deeplabv3.utils.dataloader import DeeplabDataset, deeplab_dataset_collate
+        from deeplabv3.utils.utils_fit import fit_one_epoch
+        model_path = ""
+        input_shape         = [512, 512] 
     #---------------------------------------------------------#
     #   下采樣的倍數8、16 
     #   8下采樣的倍數較小、理論上效果更好，但也要求更大的顯存
@@ -271,8 +299,9 @@ if __name__ == "__main__":
     elif modelType == ModelType.UNET:
         model = Model(num_classes=num_classes, pretrained=pretrained, backbone=backbone)
 
-    elif modelType in [ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet]:
-        model = Model(num_classes=num_classes)      
+    elif modelType in [ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet, ModelType.FPN, ModelType.DEEPLABV3]:
+        model = Model(num_classes=num_classes, pretrained=pretrained)  
+    
 
     if not pretrained:
         weights_init(model)
@@ -327,7 +356,7 @@ if __name__ == "__main__":
         optimizer       = optim.Adam(model_train.parameters(), lr, weight_decay = 5e-4)
         lr_scheduler    = optim.lr_scheduler.StepLR(optimizer, step_size = 1, gamma = 0.94)
 
-        if modelType == ModelType.DEEPLABV3_PLUS:
+        if modelType in [ModelType.DEEPLABV3_PLUS, ModelType.DEEPLABV3]:
             train_dataset   = DeeplabDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
             val_dataset     = DeeplabDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
             gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
@@ -375,6 +404,14 @@ if __name__ == "__main__":
             gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
                                     drop_last = True, collate_fn = deconvnet_dataset_collate)
 
+        elif modelType == ModelType.FPN:
+            train_dataset   = FPNDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
+            val_dataset     = FPNDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
+            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
+                                        drop_last = True, collate_fn = fpn_dataset_collate)
+            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
+                                    drop_last = True, collate_fn = fpn_dataset_collate)
+    
         #------------------------------------#
         #   凍結一定部分訓練
         #------------------------------------#
@@ -385,12 +422,13 @@ if __name__ == "__main__":
                 # Deeplab / PSPNet
                 for param in model.backbone.parameters():
                     param.requires_grad = False
-            elif modelType in[ModelType.UNET,  ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet]:
+            elif modelType in[ModelType.UNET,  ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet, ModelType.FPN, ModelType.DEEPLABV3]:
                 # Unet / SegNet / FCN / DeconvNet
-                model.freeze_backbone()         
+                model.freeze_backbone()   
+
             
         for epoch in range(start_epoch, end_epoch):
-            if modelType in [ModelType.DEEPLABV3_PLUS, ModelType.UNET, ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet]:
+            if modelType in [ModelType.DEEPLABV3_PLUS, ModelType.UNET, ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet, ModelType.FPN, ModelType.DEEPLABV3]:
                 # Deeplab / Unet / SegNet
                 fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
                         epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, num_classes)
@@ -398,8 +436,8 @@ if __name__ == "__main__":
             elif modelType == ModelType.PSPNET:
                 # PSPNet
                 fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
-                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, aux_branch, num_classes)                              
-            
+                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, aux_branch, num_classes)             
+                          
             lr_scheduler.step()
     
     if True:
@@ -417,13 +455,13 @@ if __name__ == "__main__":
         optimizer       = optim.Adam(model_train.parameters(), lr, weight_decay = 5e-4)
         lr_scheduler    = optim.lr_scheduler.StepLR(optimizer, step_size = 1, gamma = 0.94)
 
-        if modelType == ModelType.DEEPLABV3_PLUS:
-                train_dataset   = DeeplabDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
-                val_dataset     = DeeplabDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-                gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                            drop_last = True, collate_fn = deeplab_dataset_collate)
-                gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                            drop_last = True, collate_fn = deeplab_dataset_collate)
+        if modelType in [ModelType.DEEPLABV3_PLUS, ModelType.DEEPLABV3]:
+            train_dataset   = DeeplabDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
+            val_dataset     = DeeplabDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
+            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
+                                        drop_last = True, collate_fn = deeplab_dataset_collate)
+            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
+                                        drop_last = True, collate_fn = deeplab_dataset_collate)
 
         elif modelType == ModelType.PSPNET:
             train_dataset   = PSPnetDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
@@ -464,6 +502,15 @@ if __name__ == "__main__":
                                         drop_last = True, collate_fn = deconvnet_dataset_collate)
             gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
                                     drop_last = True, collate_fn = deconvnet_dataset_collate)
+
+        elif modelType == ModelType.FPN:
+            train_dataset   = FPNDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
+            val_dataset     = FPNDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
+            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
+                                        drop_last = True, collate_fn = fpn_dataset_collate)
+            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
+                                    drop_last = True, collate_fn = fpn_dataset_collate)    
+
             
     if Freeze_Train:
         loss_history.set_status(freeze=False)
@@ -472,12 +519,12 @@ if __name__ == "__main__":
             # Deeplab / PSPNet
             for param in model.backbone.parameters():
                 param.requires_grad = True
-        elif modelType in[ModelType.UNET,  ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet]:
+        elif modelType in[ModelType.UNET,  ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet, ModelType.FPN, ModelType.DEEPLABV3]:
             # Unet / SegNet
             model.unfreeze_backbone() 
 
         for epoch in range(start_epoch,end_epoch):
-            if modelType in [ModelType.DEEPLABV3_PLUS, ModelType.UNET, ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet]:
+            if modelType in [ModelType.DEEPLABV3_PLUS, ModelType.UNET, ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet, ModelType.FPN, ModelType.DEEPLABV3]:
                 # Deeplab / Unet / SegNet
                 fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
                         epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, num_classes)
@@ -485,6 +532,6 @@ if __name__ == "__main__":
             elif modelType == ModelType.PSPNET:
                 # PSPNet
                 fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
-                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, aux_branch, num_classes)  
+                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, aux_branch, num_classes)        
                               
             lr_scheduler.step()

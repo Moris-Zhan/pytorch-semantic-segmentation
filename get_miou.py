@@ -3,39 +3,50 @@ import os
 from PIL import Image
 from tqdm import tqdm
 
-# from deeplabv3_plus.deeplab import DeeplabV3 as Model
+# from deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
+# from deeplabv3.deeplabv3 import DeepLabv3 as Model
 # from pspnet.pspnet import PSPNet as Model
 # from unet.unet import Unet as Model
 # from segnet.segnet import SegNet as Model
 from fcn.fcn import FCN as Model
+# from deconvnet.deconvnet import DeconvNet as Model
+# from fpn.fpn import FPN as Model
 
 class DataType:
     VOC   = 0
-    LANE   = 1
-    ICME      = 2  
+    LANE  = 1
+    ICME  = 2  
+    COCO  = 3  
 
 class ModelType:
     DEEPLABV3_PLUS   = 0
-    PSPNET   = 1
-    UNET      = 2  
-    SEGNET    = 3 
-    FCN       = 4
+    DEEPLABV3        = 1
+    PSPNET           = 2
+    UNET             = 3 
+    SEGNET           = 4 
+    FCN              = 5
+    DeconvNet        = 6
+    FPN              = 7
 
 def check_model(o):
     str__ = str(o).split(".")[0].lower()
-    if "deeplabv3" in str__: 
+    if "deeplabv3_plus" in str__: 
         return ModelType.DEEPLABV3_PLUS
-
+    elif "deeplabv3" in str__: 
+        return ModelType.DEEPLABV3
     elif "pspnet" in str__: 
         return ModelType.PSPNET
-
     elif "unet" in str__: 
         return ModelType.UNET
-
     elif "segnet" in str__: 
-        return ModelType.SEGNET
+        return ModelType.SEGNET  
     elif "fcn" in str__: 
-        return ModelType.FCN
+        return ModelType.FCN 
+    elif "deconvnet" in str__: 
+        return ModelType.DeconvNet 
+    elif "fpn" in str__: 
+        return ModelType.FPN
+    
 
 '''
 进行指标评估需要注意以下几点：
@@ -51,6 +62,9 @@ if __name__ == "__main__":
     if modelType == ModelType.DEEPLABV3_PLUS: 
         from deeplabv3_plus.utils.utils_metrics import compute_mIoU, show_results
 
+    elif modelType == ModelType.DEEPLABV3: 
+        from deeplabv3.utils.utils_metrics import compute_mIoU, show_results
+
     elif modelType == ModelType.PSPNET: 
         from pspnet.utils.utils_metrics import compute_mIoU, show_results
 
@@ -62,6 +76,13 @@ if __name__ == "__main__":
 
     elif modelType == ModelType.FCN: 
         from fcn.utils.utils_metrics import compute_mIoU, show_results
+
+    elif modelType == ModelType.DeconvNet: 
+        from deconvnet.utils.utils_metrics import compute_mIoU, show_results
+
+    elif modelType == ModelType.FPN: 
+        from fpn.utils.utils_metrics import compute_mIoU, show_results
+  
     
     #---------------------------------------------------------------------------#
     #   miou_mode用于指定该文件运行时计算的内容
@@ -89,6 +110,16 @@ if __name__ == "__main__":
     elif dataType == DataType.ICME:
         num_classes     = 5 + 1
         name_classes    = ["background", "main_lane", "alter_lane", "double_line", "dashed_line", "single_line"]
+        VOCdevkit_path  = os.path.join(root_path, "DataSet/ICME2022")
+    elif dataType == DataType.COCO:
+        num_classes     = 80 + 1
+        name_classes    = ["background", "person", "bicycle", "car","motorcycle","airplane","bus","train","truck","boat","traffic light","fire hydrant",
+                            "stop sign","parking meter","bench","bird","cat","dog","horse","sheep","cow","elephant","bear","zebra","giraffe","backpack",
+                            "umbrella","handbag","tie","suitcase","frisbee","skis","snowboard","sports ball","kite","baseball bat","baseball glove","skateboard",
+                            "surfboard","tennis racket","bottle","wine glass","cup","fork","knife","spoon","bowl","banana","apple","sandwich","orange","broccoli","carrot","hot dog","pizza",
+                            "donut","cake","chair","couch","potted plant","bed","dining table","toilet","tv","laptop","mouse","remote","keyboard","cell phone","microwave","oven","toaster",
+                            "sink","refrigerator","book","clock","vase","scissors","teddy bear","hair drier","toothbrush"]
+
         VOCdevkit_path  = os.path.join(root_path, "DataSet/ICME2022")
     #-------------------------------------------------------#        
     image_ids       = open(os.path.join(VOCdevkit_path, "Segmentation/val.txt"),'r').read().splitlines() 
