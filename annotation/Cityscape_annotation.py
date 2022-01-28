@@ -108,7 +108,9 @@ if __name__ == "__main__":
         ftotal      = open(os.path.join(VOCdevkit_path, "Segmentation",'%s.txt'%img_set), 'w') 
 
         for i in tqdm(files[img_set]):
-            img_path = i.strip()           
+            img_path = i.strip()   
+            img        = cv2.imread(img_path)        
+            cv2.imwrite(img_path.replace("png", "jpg"), img) # make self jpg
 
             # mask = os.path.join(annotations_base,
             #                     img_path.split(os.sep)[-2],
@@ -130,15 +132,18 @@ if __name__ == "__main__":
             for k, v in d.items():
                 if k not in total_dict.keys(): total_dict[k] = 0
                 total_dict[k] += d[k]
-            ftotal.write(img_path + " " + new_mask[:-4] + "\n") 
+
+            if((os.path.exists(img_path[:-4] + ".jpg")) and (os.path.exists(new_mask[:-4] + ".png"))):
+                ftotal.write(img_path[:-4] + " " + new_mask[:-4] + "\n")    
 
         ftotal.close()
-        w      = open(os.path.join(saveBasePath,'weight.txt'), 'w') 
-        od = collections.OrderedDict(sorted(total_dict.items()))
-        res = create_class_weight(od)
-        [w.write(str(we)+"\n") for we in res.items()]
-        w.close()
-        print(" weight:", res.values())
+
+    w      = open(os.path.join(saveBasePath,'weight.txt'), 'w') 
+    od = collections.OrderedDict(sorted(total_dict.items()))
+    res = create_class_weight(od)
+    [w.write(str(we)+"\n") for we in res.items()]
+    w.close()
+    print(" weight:", res.values())
     
     print("Generate txt in ImageSets done.")   
    
