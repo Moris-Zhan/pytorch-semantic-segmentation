@@ -136,8 +136,6 @@ python predict.py --model PSPNet --experiment_dir "run\Cityscapes\PSPNet\experim
 - FPN : https://github.com/Andy-zhujunwen/FPN-Semantic-segmentation/blob/master/FPN-Seg/model/FPN.py
 - DeepLabV3: https://github.com/jfzhang95/pytorch-deeplab-xception/blob/master/modeling/deeplab.py
 - DeepLabv3_plus : https://github.com/bubbliiiing/deeplabv3-plus-pytorch
-- Dataset Preprare: https://github.com/jfzhang95/pytorch-deeplab-xception/tree/master/dataloaders/datasets
-https://towardsdatascience.com/master-the-coco-dataset-for-semantic-image-segmentation-part-1-of-2-732712631047
 - cityscapes: https://www.cityscapes-dataset.com/dataset-overview/#features
 - VOC2007: https://pjreddie.com/media/files/VOC2007_doc.pdf
 - VOC2012: https://pjreddie.com/media/files/VOC2012_doc.pdf
