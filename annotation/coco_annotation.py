@@ -7,6 +7,7 @@ import numpy as np
 import math
 from pycocotools.coco import COCO
 import torch
+import collections
 #-------------------------------------------------------#
 #   想要增加测试集修改trainval_percent 
 #   修改train_percent用于改变验证集的比例 9:1
@@ -36,6 +37,7 @@ def create_class_weight(labels_dict,mu=0.15):
 if __name__ == "__main__":
     random.seed(0)
     print("Generate txt in ImageSets.")
+    total_dict = {}
 
     for year in ["2014", "2017"]:
     # for year in ["2017"]:
@@ -56,7 +58,7 @@ if __name__ == "__main__":
             #         total_seg.append(seg)
             total_seg = glob(segfilepath + "/*.png")
             # total_dict = {i:1 for i in range(90 + 1)}
-            total_dict = {}
+            
             for seg in tqdm(total_seg):
                 img        = cv2.imread(seg, 0)
                 # img = img[:,:,[2,1,0]]
@@ -66,14 +68,7 @@ if __name__ == "__main__":
                 d = dict(zip(unique, counts)) 
                 for k, v in d.items():
                     if k not in total_dict.keys(): total_dict[k] = 0
-                    total_dict[k] += d[k]
-            
-            w      = open(os.path.join(dir_,'%s_weight.txt'%year), 'w') 
-            res = create_class_weight(total_dict)
-            [w.write(str(we)+"\n") for we in res.items()]
-
-            w.close()
-            print(" weight:", res.values())            
+                    total_dict[k] += d[k]                                  
 
             num     = len(total_seg)  
             list    = range(num)              
@@ -91,6 +86,13 @@ if __name__ == "__main__":
             ftotal.close()           
             print("Generate txt in ImageSets done.")
 
+    w      = open(os.path.join(dir_,'weight.txt'), 'w') 
+    od = collections.OrderedDict(sorted(total_dict.items()))
+    res = create_class_weight(od)
+    [w.write(str(we)+"\n") for we in res.items()]
+
+    w.close()
+    print(" weight:", res.values()) 
 
 
     # merge to txt

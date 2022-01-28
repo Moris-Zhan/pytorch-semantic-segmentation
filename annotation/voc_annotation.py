@@ -5,6 +5,7 @@ from tqdm import tqdm
 import cv2
 import numpy as np
 import math
+import collections
 #-------------------------------------------------------#
 #   想要增加测试集修改trainval_percent 
 #   修改train_percent用于改变验证集的比例 9:1
@@ -78,6 +79,8 @@ if __name__ == "__main__":
     random.seed(0)
     print("Generate txt in ImageSets.")
 
+    total_dict = {}   
+
     for year in ["2007", "2012"]:
         segfilepath     = os.path.join(VOCdevkit_path, 'VOC%s/SegmentationClass'%year)
         saveBasePath    = os.path.join(VOCdevkit_path, 'VOC%s/ImageSets/Segmentation'%year)
@@ -90,8 +93,6 @@ if __name__ == "__main__":
         #     if seg.endswith(".png"):
         #         total_seg.append(seg)
         total_seg = glob(segfilepath + "/*.png")
-        # total_dict = {i:1 for i in range(20 + 1)}
-        total_dict = {}
 
         for seg in tqdm(total_seg):
             img        = cv2.imread(seg, cv2.COLOR_BGR2RGB)
@@ -102,14 +103,8 @@ if __name__ == "__main__":
             d = dict(zip(unique, counts)) 
             for k, v in d.items():
                 if k not in total_dict.keys(): total_dict[k] = 0
-                total_dict[k] += d[k]
-        
-        w      = open(os.path.join(dir_,'weight.txt'), 'w') 
-        res = create_class_weight(total_dict)
-        [w.write(str(we)+"\n") for we in res.items()]
-
-        w.close()
-        print(" weight:", res.values())
+                total_dict[k] += d[k]       
+       
 
         num     = len(total_seg)  
         list    = range(num)  
@@ -151,6 +146,15 @@ if __name__ == "__main__":
         # ftest.close()
         print("Generate txt in ImageSets done.")
 
+    if not os.path.exists(os.path.join(VOCdevkit_path, "Segmentation")): os.makedirs(os.path.join(VOCdevkit_path, "Segmentation"))
+    w      = open(os.path.join(VOCdevkit_path, "Segmentation",'weight.txt'), 'w') 
+    od = collections.OrderedDict(sorted(total_dict.items()))
+    res = create_class_weight(od)
+    [w.write(str(we)+"\n") for we in res.items()]
+
+    w.close()
+    print(" weight:", res.values())
+
     # merge to txt
     for image_set in ["train", "val"]:
         txts = []
@@ -171,7 +175,7 @@ if __name__ == "__main__":
         data += "\n"
         data += data2
         
-        if not os.path.exists(os.path.join(VOCdevkit_path, "Segmentation")): os.makedirs(os.path.join(VOCdevkit_path, "Segmentation"))
+        
         with open(os.path.join(VOCdevkit_path, "Segmentation", "%s.txt"%(image_set)), 'w') as fp:
             lines = data.split("\n")
             lines = [fp.write(line + "\n") for line in lines if len(line.split()) > 1]
