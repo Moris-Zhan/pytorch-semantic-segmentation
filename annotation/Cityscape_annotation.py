@@ -108,7 +108,8 @@ if __name__ == "__main__":
         ftotal      = open(os.path.join(VOCdevkit_path, "Segmentation",'%s.txt'%img_set), 'w') 
 
         for i in tqdm(files[img_set]):
-            img_path = i.strip()
+            img_path = i.strip()           
+
             # mask = os.path.join(annotations_base,
             #                     img_path.split(os.sep)[-2],
             #                     os.path.basename(img_path)[:-15] + 'gtFine_labelIds.png') 
@@ -129,7 +130,7 @@ if __name__ == "__main__":
             for k, v in d.items():
                 if k not in total_dict.keys(): total_dict[k] = 0
                 total_dict[k] += d[k]
-            ftotal.write(img_path[:-4] + " " + new_mask[:-4] + "\n") 
+            ftotal.write(img_path + " " + new_mask[:-4] + "\n") 
 
         ftotal.close()
         w      = open(os.path.join(saveBasePath,'weight.txt'), 'w') 

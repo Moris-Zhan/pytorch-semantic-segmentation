@@ -21,6 +21,7 @@ class DataType:
     LANE  = 1
     ICME  = 2  
     COCO  = 3
+    Cityscape = 4
 
 def get_cls_weight(path):
     lines = []
@@ -33,7 +34,7 @@ def get_cls_weight(path):
 if __name__ == "__main__":
     # root_path = 'D://WorkSpace//JupyterWorkSpace//DataSet//bdd100k'
     root_path = "D://WorkSpace//JupyterWorkSpace//DataSet"
-    dataType = DataType.COCO
+    dataType = DataType.Cityscape
     #------------------------------------------------------------------------------------#
     
     #-------------------------------#
@@ -63,7 +64,12 @@ if __name__ == "__main__":
         #   ICME2022
         VOCdevkit_path  = os.path.join(root_path, "COCO")    
         num_classes = 80 + 1   
-        cls_weights     = get_cls_weight("%s/Segmentation/2014_weight.txt" %(VOCdevkit_path))     
+        cls_weights     = get_cls_weight("%s/Segmentation/weight.txt" %(VOCdevkit_path))    
+    elif dataType == DataType.Cityscape:
+        #   Cityscape
+        VOCdevkit_path  = os.path.join(root_path, "Cityscapes")    
+        num_classes = 19 + 1   
+        cls_weights     = get_cls_weight("%s/Segmentation/weight.txt" %(VOCdevkit_path))     
     #------------------------------------------------------#
     #   用於設置是否使用多線程讀取數據
     #   開啟後會加快數據讀取速度，但是會占用更多內存
