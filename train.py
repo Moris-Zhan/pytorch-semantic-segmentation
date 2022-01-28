@@ -22,6 +22,7 @@ class DataType:
     LANE  = 1
     ICME  = 2  
     COCO  = 3
+    Cityscape = 4
 
 class ModelType:
     DEEPLABV3_PLUS   = 0
@@ -288,7 +289,12 @@ if __name__ == "__main__":
         #   ICME2022
         VOCdevkit_path  = os.path.join(root_path, "COCO")    
         num_classes = 80 + 1   
-        cls_weights     = get_cls_weight("%s/Segmentation/2014_weight.txt" %(VOCdevkit_path))
+        cls_weights     = get_cls_weight("%s/Segmentation/weight.txt" %(VOCdevkit_path))    
+    elif dataType == DataType.Cityscape:
+        #   Cityscape
+        VOCdevkit_path  = os.path.join(root_path, "Cityscapes")    
+        num_classes = 19 + 1   
+        cls_weights     = get_cls_weight("%s/Segmentation/weight.txt" %(VOCdevkit_path))    
     #----------------------------------------------------------------------------------------------------------------------------#
     if modelType == ModelType.DEEPLABV3_PLUS:
         model   = Model(num_classes=num_classes, backbone=backbone, downsample_factor=downsample_factor, pretrained=pretrained)
