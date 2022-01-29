@@ -135,7 +135,7 @@ class MobileNetV2(nn.Module):
                 m.bias.data.zero_()
 
 
-def load_url(url, model_dir='./deeplabv3_plus/weight', map_location=None):
+def load_url(url, model_dir='./model_data', map_location=None):
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
     filename = url.split('/')[-1]

@@ -94,7 +94,7 @@ if __name__ == "__main__":
         from deeplabv3_plus.utils.dataloader import DeeplabDataset, deeplab_dataset_collate
         from deeplabv3_plus.utils.utils_fit import fit_one_epoch
 
-        model_path  = "deeplabv3_plus/weight/deeplab_mobilenetv2.pth" # deeplabv3_plus
+        model_path  = "model_data/deeplab_mobilenetv2.pth" # deeplabv3_plus
         input_shape         = [512, 512] 
         backbone    = "mobilenet"
 
@@ -104,7 +104,7 @@ if __name__ == "__main__":
         from pspnet.utils.utils_fit import fit_one_epoch
         from pspnet.utils.dataloader import PSPnetDataset, pspnet_dataset_collate
 
-        model_path  = "pspnet/weight/pspnet_mobilenetv2.pth" # pspnet
+        model_path  = "model_data/pspnet_mobilenetv2.pth" # pspnet
         input_shape         = [473, 473] 
         backbone    = "mobilenet"
         #------------------------------------------------------#
@@ -119,7 +119,7 @@ if __name__ == "__main__":
         from unet.utils.dataloader import UnetDataset, unet_dataset_collate
         from unet.utils.utils_fit import fit_one_epoch
 
-        model_path  = "unet/weight/unet_vgg_voc.pth" # unet
+        model_path  = "model_data/unet_vgg_voc.pth" # unet
         input_shape         = [512, 512] 
         backbone    = "vgg"   
 
@@ -210,9 +210,7 @@ if __name__ == "__main__":
     #   開啟後會加快數據讀取速度，但是會占用更多內存
     #   內存較小的電腦可以設置為2或者0  
     #------------------------------------------------------#
-    num_workers     = 4
-    #-------------------------------#    
-    
+    num_workers     = 4   
     #----------------------------------------------------------------------------------------------------------------------------#
     if modelType == ModelType.DEEPLABV3_PLUS:
         model   = Model(num_classes=num_classes, backbone=backbone, downsample_factor=downsample_factor, pretrained=pretrained)
@@ -340,27 +338,19 @@ if __name__ == "__main__":
         #   凍結一定部分訓練
         #------------------------------------#
         if Freeze_Train:
-            loss_history.set_status(freeze=True)
-
-            if modelType in [ModelType.DEEPLABV3_PLUS, ModelType.PSPNET]:
-                # Deeplab / PSPNet
-                for param in model.backbone.parameters():
-                    param.requires_grad = False
-            elif modelType in[ModelType.UNET,  ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet, ModelType.FPN, ModelType.DEEPLABV3]:
-                # Unet / SegNet / FCN / DeconvNet
-                model.freeze_backbone()   
+            loss_history.set_status(freeze=True)            
+            model.freeze_backbone()   
 
             
         for epoch in range(start_epoch, end_epoch):
-            if modelType in [ModelType.DEEPLABV3_PLUS, ModelType.UNET, ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet, ModelType.FPN, ModelType.DEEPLABV3]:
-                # Deeplab / Unet / SegNet
-                fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
-                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, num_classes)
-            
-            elif modelType == ModelType.PSPNET:
+            if modelType == ModelType.PSPNET:
                 # PSPNet
                 fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
-                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, aux_branch, num_classes)             
+                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, aux_branch, num_classes) 
+            else:
+                # other
+                fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
+                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, num_classes)
                           
             lr_scheduler.step()
     
@@ -437,25 +427,17 @@ if __name__ == "__main__":
 
             
     if Freeze_Train:
-        loss_history.set_status(freeze=False)
-
-        if modelType in [ModelType.DEEPLABV3_PLUS, ModelType.PSPNET]:
-            # Deeplab / PSPNet
-            for param in model.backbone.parameters():
-                param.requires_grad = True
-        elif modelType in[ModelType.UNET,  ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet, ModelType.FPN, ModelType.DEEPLABV3]:
-            # Unet / SegNet
-            model.unfreeze_backbone() 
+        loss_history.set_status(freeze=False)        
+        model.unfreeze_backbone() 
 
         for epoch in range(start_epoch,end_epoch):
-            if modelType in [ModelType.DEEPLABV3_PLUS, ModelType.UNET, ModelType.SEGNET, ModelType.FCN, ModelType.DeconvNet, ModelType.FPN, ModelType.DEEPLABV3]:
-                # Deeplab / Unet / SegNet
-                fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
-                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, num_classes)
-            
-            elif modelType == ModelType.PSPNET:
+            if modelType == ModelType.PSPNET:
                 # PSPNet
                 fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
-                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, aux_branch, num_classes)        
+                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, aux_branch, num_classes) 
+            else:
+                # other
+                fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
+                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, num_classes)        
                               
             lr_scheduler.step()

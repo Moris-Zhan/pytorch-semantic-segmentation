@@ -207,3 +207,11 @@ class PSPNet(nn.Module):
                 elif isinstance(m, nn.Linear):
                     m.weight.data.normal_(0.0, 0.0001)
                     m.bias.data.zero_()
+
+    def freeze_backbone(self):
+        for param in self.backbone.parameters():
+            param.requires_grad = False
+
+    def unfreeze_backbone(self):
+        for param in self.backbone.parameters():
+            param.requires_grad = True

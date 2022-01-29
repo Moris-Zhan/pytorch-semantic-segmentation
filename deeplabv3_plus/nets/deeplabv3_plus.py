@@ -187,3 +187,11 @@ class DeepLab(nn.Module):
         x = F.interpolate(x, size=(H, W), mode='bilinear', align_corners=True)
         return x
 
+    def freeze_backbone(self):
+        for param in self.backbone.parameters():
+            param.requires_grad = False
+
+    def unfreeze_backbone(self):
+        for param in self.backbone.parameters():
+            param.requires_grad = True
+
