@@ -2,51 +2,17 @@ import os
 
 from PIL import Image
 from tqdm import tqdm
+from helps.choose_data import DataType, get_data
+from helps.choose_model import ModelType, check_model
 
 # from deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
 # from deeplabv3.deeplabv3 import DeepLabv3 as Model
 # from pspnet.pspnet import PSPNet as Model
 # from unet.unet import Unet as Model
-# from segnet.segnet import SegNet as Model
-from fcn.fcn import FCN as Model
+from segnet.segnet import SegNet as Model
+# from fcn.fcn import FCN as Model
 # from deconvnet.deconvnet import DeconvNet as Model
-# from fpn.fpn import FPN as Model
-
-class DataType:
-    VOC   = 0
-    LANE  = 1
-    ICME  = 2  
-    COCO  = 3  
-
-class ModelType:
-    DEEPLABV3_PLUS   = 0
-    DEEPLABV3        = 1
-    PSPNET           = 2
-    UNET             = 3 
-    SEGNET           = 4 
-    FCN              = 5
-    DeconvNet        = 6
-    FPN              = 7
-
-def check_model(o):
-    str__ = str(o).split(".")[0].lower()
-    if "deeplabv3_plus" in str__: 
-        return ModelType.DEEPLABV3_PLUS
-    elif "deeplabv3" in str__: 
-        return ModelType.DEEPLABV3
-    elif "pspnet" in str__: 
-        return ModelType.PSPNET
-    elif "unet" in str__: 
-        return ModelType.UNET
-    elif "segnet" in str__: 
-        return ModelType.SEGNET  
-    elif "fcn" in str__: 
-        return ModelType.FCN 
-    elif "deconvnet" in str__: 
-        return ModelType.DeconvNet 
-    elif "fpn" in str__: 
-        return ModelType.FPN
-    
+# from fpn.fpn import FPN as Model    
 
 '''
 进行指标评估需要注意以下几点：
@@ -55,8 +21,11 @@ def check_model(o):
 '''
 if __name__ == "__main__":
     #------------------------------#
-    root_path = "D://WorkSpace//JupyterWorkSpace"
-    dataType = DataType.VOC
+    #   分类个数+1、如2+1
+    #   区分的种类，和json_to_dataset里面的一样
+    #   指向VOC数据集所在的文件夹
+    root_path = "D://WorkSpace//JupyterWorkSpace//DataSet"
+    VOCdevkit_path, num_classes, _, name_classes = get_data(root_path, DataType.VOC)
     #------------------------------#
     modelType = check_model(Model.__module__)
     if modelType == ModelType.DEEPLABV3_PLUS: 
@@ -91,36 +60,6 @@ if __name__ == "__main__":
     #   miou_mode为2代表仅仅计算miou。
     #---------------------------------------------------------------------------#
     miou_mode       = 0
-    #------------------------------#
-    #   分类个数+1、如2+1
-    #   区分的种类，和json_to_dataset里面的一样
-    #   指向VOC数据集所在的文件夹
-    #------------------------------#
-    if dataType == DataType.VOC:
-        num_classes     = 20 + 1
-        name_classes    = ["background", "aeroplane", "tvmonitor", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", 'diningtable', 
-            "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train"]
-        VOCdevkit_path  = os.path.join(root_path, "DataSet/VOCdevkit/VOC2012")
-
-    elif dataType == DataType.LANE:
-        num_classes     = 11 + 1
-        name_classes    = ["background", "BL", "CL", "DM", "JB", "LA", "PC", "RA", "SA", "SL", "SLA", "SRA"]
-        VOCdevkit_path  = os.path.join(root_path, "DataSet/LANEdevkit")
-
-    elif dataType == DataType.ICME:
-        num_classes     = 5 + 1
-        name_classes    = ["background", "main_lane", "alter_lane", "double_line", "dashed_line", "single_line"]
-        VOCdevkit_path  = os.path.join(root_path, "DataSet/ICME2022")
-    elif dataType == DataType.COCO:
-        num_classes     = 80 + 1
-        name_classes    = ["background", "person", "bicycle", "car","motorcycle","airplane","bus","train","truck","boat","traffic light","fire hydrant",
-                            "stop sign","parking meter","bench","bird","cat","dog","horse","sheep","cow","elephant","bear","zebra","giraffe","backpack",
-                            "umbrella","handbag","tie","suitcase","frisbee","skis","snowboard","sports ball","kite","baseball bat","baseball glove","skateboard",
-                            "surfboard","tennis racket","bottle","wine glass","cup","fork","knife","spoon","bowl","banana","apple","sandwich","orange","broccoli","carrot","hot dog","pizza",
-                            "donut","cake","chair","couch","potted plant","bed","dining table","toilet","tv","laptop","mouse","remote","keyboard","cell phone","microwave","oven","toaster",
-                            "sink","refrigerator","book","clock","vase","scissors","teddy bear","hair drier","toothbrush"]
-
-        VOCdevkit_path  = os.path.join(root_path, "DataSet/ICME2022")
     #-------------------------------------------------------#        
     image_ids       = open(os.path.join(VOCdevkit_path, "Segmentation/val.txt"),'r').read().splitlines() 
     gt_dir          = os.path.join(VOCdevkit_path, "test/mask_annotations/")

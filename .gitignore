@@ -133,3 +133,5 @@ miou_out/
 pred_out/
 *.pth
 *.tar
+*.mp4
+*.csv

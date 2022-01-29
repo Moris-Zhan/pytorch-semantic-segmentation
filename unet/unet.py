@@ -28,8 +28,8 @@ class Unet(object):
 
         #   所需要区分的类的个数+1
         #-------------------------------------------------------------------#
-        "model_path"        : 'logs/UNet/ep053-loss0.018-val_loss0.021.pth',
-        "num_classes"       : 11 + 1,    
+        "model_path"        : 'logs/UNet/ep050-loss0.012-val_loss0.010.pth',
+        "num_classes"       : 20 + 1,    
 
         # "model_path"        : 'logs(ICME)/ep020-loss5.090-val_loss3.802.pth',
         # "num_classes"       : 5 + 1, 

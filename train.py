@@ -5,63 +5,17 @@ import torch
 import torch.backends.cudnn as cudnn
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from helps.choose_data import DataType, get_data
+from helps.choose_model import ModelType, check_model
 
 # from deeplabv3_plus.nets.deeplabv3_plus import DeepLab as Model
 # from deeplabv3.nets.deeplabv3 import DeepLab as Model
 # from pspnet.nets.pspnet import PSPNet as Model
 # from unet.nets.unet import Unet  as Model
 # from segnet.nets.segnet import SegNet as Model
-from fcn.nets.fcn import FCN as Model
-# from deconvnet.nets.deconvnet import DeconvNet as Model
-# from fpn.nets.fpn import FPN as Model
-
-
-
-class DataType:
-    VOC   = 0
-    LANE  = 1
-    ICME  = 2  
-    COCO  = 3
-    Cityscape = 4
-
-class ModelType:
-    DEEPLABV3_PLUS   = 0
-    DEEPLABV3        = 1
-    PSPNET           = 2
-    UNET             = 3 
-    SEGNET           = 4 
-    FCN              = 5
-    DeconvNet        = 6
-    FPN              = 7
-    
-
-def check_model(o):
-    str__ = str(o).split(".")[0].lower()
-    if "deeplabv3_plus" in str__: 
-        return ModelType.DEEPLABV3_PLUS
-    elif "deeplabv3" in str__: 
-        return ModelType.DEEPLABV3
-    elif "pspnet" in str__: 
-        return ModelType.PSPNET
-    elif "unet" in str__: 
-        return ModelType.UNET
-    elif "segnet" in str__: 
-        return ModelType.SEGNET  
-    elif "fcn" in str__: 
-        return ModelType.FCN 
-    elif "deconvnet" in str__: 
-        return ModelType.DeconvNet 
-    elif "fpn" in str__: 
-        return ModelType.FPN
-    
-
-def get_cls_weight(path):
-    lines = []
-    with open(path, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-        lines = [float(line.split(", ")[1].split(")")[0]) for line in lines]
-        cls_weights     = np.array(lines, np.float32)
-    return cls_weights
+# from fcn.nets.fcn import FCN as Model
+from deconvnet.nets.deconvnet import DeconvNet as Model
+# from fpn.nets.fpn import FPN as Model  
         
 
 '''
@@ -90,9 +44,8 @@ def get_cls_weight(path):
 '''
 if __name__ == "__main__":       
     #------------------------------#
-    dataType = DataType.VOC
-    #------------------------------#
     root_path = "D://WorkSpace//JupyterWorkSpace//DataSet"
+    VOCdevkit_path, num_classes, cls_weights, _ = get_data(root_path, DataType.VOC)
     #-------------------------------#
     #   是否使用Cuda
     #   沒有GPU可以設置成False
@@ -259,42 +212,7 @@ if __name__ == "__main__":
     #------------------------------------------------------#
     num_workers     = 4
     #-------------------------------#    
-    #   數據集路徑
-    #   訓練自己的數據集必須要修改的
-
-    #   自己需要的分類個數+1，如2+1
-    #   是否給不同種類賦予不同的損失權值，默認是平衡的。
-
-    #   設置的話，注意設置成numpy形式的，長度和num_classes一樣。
-    #   如：
-    #   num_classes = 3
-    #   cls_weights = np.array([1, 2, 3], np.float32)
-    #------------------------------#  
-    if dataType == DataType.VOC:
-        #   VOCdevkit
-        VOCdevkit_path  = os.path.join(root_path, "VOCdevkit")    
-        num_classes = 20 + 1
-        cls_weights     = get_cls_weight("%s/Segmentation/weight.txt" %(VOCdevkit_path))
-    elif dataType == DataType.LANE:
-        #   LANEdevkit
-        VOCdevkit_path  = os.path.join(root_path, "LANEdevkit")    
-        num_classes = 11 + 1
-        cls_weights     = get_cls_weight("%s/Segmentation/weight_train.txt" %(VOCdevkit_path))
-    elif dataType == DataType.ICME:
-        #   ICME2022
-        VOCdevkit_path  = os.path.join(root_path, "ICME2022")    
-        num_classes = 5 + 1   
-        cls_weights     = get_cls_weight("%s/Segmentation/weight.txt" %(VOCdevkit_path))  
-    elif dataType == DataType.COCO:
-        #   ICME2022
-        VOCdevkit_path  = os.path.join(root_path, "COCO")    
-        num_classes = 80 + 1   
-        cls_weights     = get_cls_weight("%s/Segmentation/weight.txt" %(VOCdevkit_path))    
-    elif dataType == DataType.Cityscape:
-        #   Cityscape
-        VOCdevkit_path  = os.path.join(root_path, "Cityscapes")    
-        num_classes = 19 + 1   
-        cls_weights     = get_cls_weight("%s/Segmentation/weight.txt" %(VOCdevkit_path))    
+    
     #----------------------------------------------------------------------------------------------------------------------------#
     if modelType == ModelType.DEEPLABV3_PLUS:
         model   = Model(num_classes=num_classes, backbone=backbone, downsample_factor=downsample_factor, pretrained=pretrained)
