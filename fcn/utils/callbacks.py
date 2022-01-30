@@ -9,9 +9,18 @@ from tensorboardX import SummaryWriter
 from torchsummary import summary
 import io
 from contextlib import redirect_stdout
+import threading
+import webbrowser
+import numpy as np
+
+def launchTensorBoard(tensorBoardPath, port = 8888):
+    os.system('tensorboard --logdir=%s --port=%s'%(tensorBoardPath, port))
+    url = "http://localhost:%s/"%(port)
+    webbrowser.open_new(url)
+    return
 
 class LossHistory():
-    def __init__(self, model):
+    def __init__(self, model, patience = 3):
         import datetime
         curr_time = datetime.datetime.now()
         time_str = datetime.datetime.strftime(curr_time,'%Y_%m_%d_%H_%M_%S')
@@ -33,7 +42,17 @@ class LossHistory():
         lines = f.getvalue()
         with open(os.path.join(self.log_dir, "summary.txt") ,"w") as f:
             [f.write(line) for line in lines]
-            
+
+        # launch tensorboard
+        t = threading.Thread(target=launchTensorBoard, args=([self.log_dir]))
+        t.start()     
+
+        # initial EarlyStopping
+        self.best_lower_loss = np.Inf 
+        self.early_stop = False
+        self.counter  = 0
+        self.patience = patience
+
         os.makedirs(self.save_path)
 
     def set_status(self, freeze):
@@ -54,6 +73,7 @@ class LossHistory():
         prefix = "Freeze_epoch/" if self.freeze else "UnFreeze_epoch/"     
         self.writer.add_scalar(prefix+'Loss/Train', loss, epoch)
         self.writer.add_scalar(prefix+'Loss/Val', val_loss, epoch)  
+        self.decide(val_loss)
 
     def append_loss_no_val(self, loss, epoch):
         self.losses.append(loss)
@@ -71,6 +91,16 @@ class LossHistory():
         self.writer.add_scalar(prefix + 'Train/Loss', steploss, iteration)
         self.writer.add_scalar(prefix + 'Train/F_Score', stepfscore, iteration)
     
+    def decide(self, val_epoch_loss):
+        if self.best_lower_loss >= val_epoch_loss:
+            self.best_lower_loss = val_epoch_loss
+            self.counter = 0
+        else:
+            self.counter += 1
+            print(f'EarlyStopping counter: {self.counter} out of {self.patience}\n')
+    
+    def earlyStop(self):
+        return self.counter > self.patience
 
     def loss_plot(self):
         iters = range(len(self.losses))

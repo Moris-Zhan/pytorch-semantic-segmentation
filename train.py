@@ -187,7 +187,7 @@ if __name__ == "__main__":
     #   此時模型的主幹不被凍結了，特征提取網絡會發生改變
     #   占用的顯存較大，網絡所有的參數都會發生改變
     #----------------------------------------------------#
-    UnFreeze_Epoch      = 100
+    End_UnFreeze_Epoch      = 100
     Unfreeze_batch_size = int(4/2)
     Unfreeze_lr         = 5e-5    
     #---------------------------------------------------------------------# 
@@ -343,6 +343,8 @@ if __name__ == "__main__":
 
             
         for epoch in range(start_epoch, end_epoch):
+            Start_UnFreeze_Epoch = epoch + 1
+            if loss_history.earlyStop(): break
             if modelType == ModelType.PSPNET:
                 # PSPNet
                 fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
@@ -357,8 +359,10 @@ if __name__ == "__main__":
     if True:
         batch_size  = Unfreeze_batch_size
         lr          = Unfreeze_lr
-        start_epoch = Freeze_Epoch
-        end_epoch   = UnFreeze_Epoch
+        # start_epoch = Freeze_Epoch
+        # end_epoch   = UnFreeze_Epoch
+        start_epoch = Start_UnFreeze_Epoch
+        end_epoch   = End_UnFreeze_Epoch
 
         epoch_step      = len(train_lines) // batch_size
         epoch_step_val  = len(val_lines) // batch_size
@@ -431,6 +435,7 @@ if __name__ == "__main__":
         model.unfreeze_backbone() 
 
         for epoch in range(start_epoch,end_epoch):
+            if loss_history.earlyStop(): break
             if modelType == ModelType.PSPNET:
                 # PSPNet
                 fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
