@@ -14,8 +14,8 @@ from helps.choose_model import ModelType, check_model
 # from unet.nets.unet import Unet  as Model
 # from segnet.nets.segnet import SegNet as Model
 # from fcn.nets.fcn import FCN as Model
-from deconvnet.nets.deconvnet import DeconvNet as Model
-# from fpn.nets.fpn import FPN as Model  
+# from deconvnet.nets.deconvnet import DeconvNet as Model
+from fpn.nets.fpn import FPN as Model  
         
 
 '''
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     #   占用的顯存較小，僅對網絡進行微調
     #----------------------------------------------------#
     Init_Epoch          = 0
-    Freeze_Epoch        = 50
+    max_Freeze_Epoch    = 50
     Freeze_batch_size   = int(8/4)
     Freeze_lr           = 5e-4
     #----------------------------------------------------#
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     #   此時模型的主幹不被凍結了，特征提取網絡會發生改變
     #   占用的顯存較大，網絡所有的參數都會發生改變
     #----------------------------------------------------#
-    End_UnFreeze_Epoch      = 100
+    max_UnFreeze_Epoch  = 100
     Unfreeze_batch_size = int(4/2)
     Unfreeze_lr         = 5e-5    
     #---------------------------------------------------------------------# 
@@ -267,7 +267,7 @@ if __name__ == "__main__":
         batch_size  = Freeze_batch_size
         lr          = Freeze_lr
         start_epoch = Init_Epoch
-        end_epoch   = Freeze_Epoch
+        end_epoch   = max_Freeze_Epoch
 
         epoch_step      = len(train_lines) // batch_size
         epoch_step_val  = len(val_lines) // batch_size
@@ -343,7 +343,7 @@ if __name__ == "__main__":
 
             
         for epoch in range(start_epoch, end_epoch):
-            Start_UnFreeze_Epoch = epoch + 1
+            next_UnFreeze_Epoch = epoch + 1
             if loss_history.earlyStop(): break
             if modelType == ModelType.PSPNET:
                 # PSPNet
@@ -358,11 +358,9 @@ if __name__ == "__main__":
     
     if True:
         batch_size  = Unfreeze_batch_size
-        lr          = Unfreeze_lr
-        # start_epoch = Freeze_Epoch
-        # end_epoch   = UnFreeze_Epoch
-        start_epoch = Start_UnFreeze_Epoch
-        end_epoch   = End_UnFreeze_Epoch
+        lr          = Unfreeze_lr   
+        start_epoch = next_UnFreeze_Epoch
+        end_epoch   = max_UnFreeze_Epoch
 
         epoch_step      = len(train_lines) // batch_size
         epoch_step_val  = len(val_lines) // batch_size
