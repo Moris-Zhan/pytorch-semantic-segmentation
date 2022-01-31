@@ -15,12 +15,12 @@ import numpy as np
 def launchTensorBoard(tensorBoardPath, port = 8888):
     os.system('tensorboard --logdir=%s --port=%s'%(tensorBoardPath, port))
     url = "http://localhost:%s/"%(port)
-    webbrowser.open_new(url)
+    # webbrowser.open_new(url)
     return
 
 
 class LossHistory():
-    def __init__(self, model, patience = 3):
+    def __init__(self, model, patience = 5):
         import datetime
         curr_time = datetime.datetime.now()
         time_str = datetime.datetime.strftime(curr_time,'%Y_%m_%d_%H_%M_%S')
@@ -58,7 +58,7 @@ class LossHistory():
     def set_status(self, freeze):
         self.freeze = freeze
 
-    def append_loss(self, loss, val_loss, epoch):
+    def epoch_loss(self, loss, val_loss, epoch):
         self.losses.append(loss)
         self.val_loss.append(val_loss)
         with open(os.path.join(self.save_path, "epoch_loss_" + str(self.time_str) + ".txt"), 'a') as f:
@@ -90,6 +90,10 @@ class LossHistory():
             print(f'EarlyStopping counter: {self.counter} out of {self.patience}\n')
     
     def earlyStop(self):
+        prefix = "Freeze" if self.freeze else "UnFreeze"        
+        if(self.counter > self.patience): 
+            print(f'EarlyStopping counter: {self.counter} bigger than {self.patience}\n')
+            print(f'exit %s training'%(prefix))
         return self.counter > self.patience
 
     def loss_plot(self):

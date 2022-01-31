@@ -105,7 +105,7 @@ def fit_one_epoch(model_train, model, loss_history, optimizer, epoch, epoch_step
                                 'lr'        : get_lr(optimizer)})
             pbar.update(1)
             
-    loss_history.append_loss(total_loss/(epoch_step+1), val_loss/(epoch_step_val+1), epoch+1)
+    loss_history.epoch_loss(total_loss/(epoch_step+1), val_loss/(epoch_step_val+1), epoch+1)
     print('Finish Validation')
     print('Epoch:'+ str(epoch+1) + '/' + str(Epoch))
     print('Total Loss: %.3f || Val Loss: %.3f ' % (total_loss / (epoch_step + 1), val_loss / (epoch_step_val + 1)))
@@ -164,7 +164,7 @@ def fit_one_epoch_no_val(model_train, model, loss_history, optimizer, epoch, epo
 
     print('Finish Train')
             
-    loss_history.append_loss_no_val(total_loss/(epoch_step+1), epoch+1)
+    loss_history.epoch_loss_no_val(total_loss/(epoch_step+1), epoch+1)
     print('Finish Validation')
     print('Epoch:'+ str(epoch+1) + '/' + str(Epoch))
     print('Total Loss: %.3f' % (total_loss / (epoch_step + 1)))
