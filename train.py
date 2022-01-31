@@ -206,6 +206,10 @@ if __name__ == "__main__":
     #------------------------------------------------------#
     Freeze_Train    = True
     #------------------------------------------------------#
+    #   是否提早結束。
+    #------------------------------------------------------#
+    Early_Stopping  = False
+    #------------------------------------------------------#
     #   用於設置是否使用多線程讀取數據
     #   開啟後會加快數據讀取速度，但是會占用更多內存
     #   內存較小的電腦可以設置為2或者0  
@@ -344,7 +348,7 @@ if __name__ == "__main__":
             
         for epoch in range(start_epoch, end_epoch):
             next_UnFreeze_Epoch = epoch + 1
-            if loss_history.earlyStop(): break
+            # if (Early_Stopping and loss_history.stopping): break
             if modelType == ModelType.PSPNET:
                 # PSPNet
                 fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
@@ -435,7 +439,7 @@ if __name__ == "__main__":
         model.unfreeze_backbone() 
 
     for epoch in range(start_epoch,end_epoch):
-        if loss_history.earlyStop(): break
+        if (Early_Stopping and loss_history.stopping): break
         if modelType == ModelType.PSPNET:
             # PSPNet
             fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 

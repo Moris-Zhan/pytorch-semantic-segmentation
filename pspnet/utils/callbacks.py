@@ -48,8 +48,8 @@ class LossHistory():
         t.start()     
 
         # initial EarlyStopping
-        self.best_lower_loss = np.Inf 
-        self.early_stop = False
+        self.best_epoch_loss = np.Inf 
+        self.stopping = False
         self.counter  = 0
         self.patience = patience
 
@@ -81,20 +81,17 @@ class LossHistory():
         self.writer.add_scalar(prefix + 'Train/Loss', steploss, iteration)
         self.writer.add_scalar(prefix + 'Train/F_Score', stepfscore, iteration)
     
-    def decide(self, val_epoch_loss):
-        if self.best_lower_loss >= val_epoch_loss:
-            self.best_lower_loss = val_epoch_loss
-            self.counter = 0
-        else:
+    def decide(self, epoch_loss):
+        if epoch_loss > self.best_epoch_loss:
             self.counter += 1
-            print(f'EarlyStopping counter: {self.counter} out of {self.patience}\n')
-    
-    def earlyStop(self):
-        prefix = "Freeze" if self.freeze else "UnFreeze"        
-        if(self.counter > self.patience): 
-            print(f'EarlyStopping counter: {self.counter} bigger than {self.patience}\n')
-            print(f'exit %s training'%(prefix))
-        return self.counter > self.patience
+            print(f'EarlyStopping counter: {self.counter} out of {self.patience}')
+            if self.counter >= self.patience:
+                print(f'Best lower loss:{self.best_epoch_loss}')
+                self.stopping = True
+        else:
+            self.best_epoch_loss = epoch_loss           
+            self.counter = 0 
+            self.stopping = False
 
     def loss_plot(self):
         iters = range(len(self.losses))
