@@ -35,10 +35,10 @@ from fpn.nets.fpn import FPN as Model
    這個並不是保存越少越好也不是保存越多越好，有人想要都保存、有人想只保存一點，為了滿足大多數的需求，還是都保存可選擇性高。
 
 3、損失值的大小用於判斷是否收斂，比較重要的是有收斂的趨勢，即驗證集損失不斷下降，如果驗證集損失基本上不改變的話，模型基本上就收斂了。
-   損失值的具體大小並沒有什麽意義，大和小只在於損失的計算方式，並不是接近於0才好。如果想要讓損失好看點，可以直接到對應的損失函數里面除上10000。
+   損失值的具體大小並沒有什麼意義，大和小只在於損失的計算方式，並不是接近於0才好。如果想要讓損失好看點，可以直接到對應的損失函數里面除上10000。
    訓練過程中的損失值會保存在logs文件夾下的loss_%Y_%m_%d_%H_%M_%S文件夾中
 
-4、調參是一門蠻重要的學問，沒有什麽參數是一定好的，現有的參數是我測試過可以正常訓練的參數，因此我會建議用現有的參數。
+4、調參是一門蠻重要的學問，沒有什麼參數是一定好的，現有的參數是我測試過可以正常訓練的參數，因此我會建議用現有的參數。
    但是參數本身並不是絕對的，比如隨著batch的增大學習率也可以增大，效果也會好一些；過深的網絡不要用太大的學習率等等。
    這些都是經驗上，只能靠各位同學多查詢資料和自己試試了。
 '''
@@ -108,8 +108,8 @@ if __name__ == "__main__":
         input_shape         = [473, 473] 
         backbone    = "mobilenet"
         #------------------------------------------------------#
-        #   是否使用辅助分支
-        #   会占用大量显存
+        #   是否使用輔助分支
+        #   會占用大量顯存
         #------------------------------------------------------#
         aux_branch      = False             # pspnet
 
@@ -193,8 +193,8 @@ if __name__ == "__main__":
     #---------------------------------------------------------------------# 
     #   建議選項：
     #   種類少（幾類）時，設置為True
-    #   種類多（十幾類）時，如果batch_size比較大（10以上），那麽設置為True
-    #   種類多（十幾類）時，如果batch_size比較小（10以下），那麽設置為False
+    #   種類多（十幾類）時，如果batch_size比較大（10以上），那麼設置為True
+    #   種類多（十幾類）時，如果batch_size比較小（10以下），那麼設置為False
     #---------------------------------------------------------------------# 
     dice_loss       = False
     #---------------------------------------------------------------------# 
@@ -352,8 +352,7 @@ if __name__ == "__main__":
             else:
                 # other
                 fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
-                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, num_classes)
-                          
+                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, num_classes)                          
             lr_scheduler.step()
         print("End of Freeze Training")
     
@@ -428,21 +427,23 @@ if __name__ == "__main__":
             gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
                                     drop_last = True, collate_fn = fpn_dataset_collate)    
 
-            
+    #------------------------------------#
+    #   解凍後訓練
+    #------------------------------------#
     if Freeze_Train:
         loss_history.set_status(freeze=False)        
         model.unfreeze_backbone() 
 
-        for epoch in range(start_epoch,end_epoch):
-            if loss_history.earlyStop(): break
-            if modelType == ModelType.PSPNET:
-                # PSPNet
-                fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
-                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, aux_branch, num_classes) 
-            else:
-                # other
-                fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
-                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, num_classes)        
-                              
-            lr_scheduler.step()
-        print("End of UnFreeze Training")
+    for epoch in range(start_epoch,end_epoch):
+        if loss_history.earlyStop(): break
+        if modelType == ModelType.PSPNET:
+            # PSPNet
+            fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
+                    epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, aux_branch, num_classes) 
+        else:
+            # other
+            fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
+                    epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, num_classes)        
+                            
+        lr_scheduler.step()
+    print("End of UnFreeze Training")
