@@ -1,8 +1,5 @@
-import torch
 import torch.nn as nn
-from torchvision import models
-from fpn.utils.utils import set_trainable, get_upsampling_weight
-from itertools import chain
+from fpn.utils.utils import set_trainable
 import torch.nn.functional as F
 from fpn.nets.backbone import ResNet101
 

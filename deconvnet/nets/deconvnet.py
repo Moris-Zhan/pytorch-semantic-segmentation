@@ -1,18 +1,15 @@
-import torch
 import torch.nn as nn
 from torchvision import models
-from deconvnet.utils.utils import set_trainable, get_upsampling_weight
-from itertools import chain
+from deconvnet.utils.utils import set_trainable
+# import torchvision.models as models
+from deconvnet.nets.vgg import VGG16_BN
 
-import torch
-import torchvision.models as models
-
-import numpy as np
 
 
 
 def make_layers(pretrained):
-    vgg16_bn = models.vgg16_bn(pretrained)
+    # vgg16_bn = models.vgg16_bn(pretrained)
+    vgg16_bn   = VGG16_BN(pretrained = pretrained)
     features = list(vgg16_bn.features.children())
     classifier = list(vgg16_bn.classifier.children())
     

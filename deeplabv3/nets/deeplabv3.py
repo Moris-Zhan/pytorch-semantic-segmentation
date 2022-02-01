@@ -1,9 +1,5 @@
-import torch
-import copy
 import torch.nn as nn
-from torchvision import models
-from deeplabv3.utils.utils import set_trainable, get_upsampling_weight
-from itertools import chain
+from deeplabv3.utils.utils import set_trainable
 import torch.nn.functional as F
 from deeplabv3.nets.aspp import build_aspp
 from deeplabv3.nets.decoder import build_decoder

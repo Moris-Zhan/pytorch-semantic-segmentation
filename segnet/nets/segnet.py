@@ -2,12 +2,14 @@ import torch
 import torch.nn as nn
 from torchvision import models
 from segnet.utils.utils import set_trainable
+from segnet.nets.vgg import VGG16_BN
 
 
 class SegNet(nn.Module):
     def __init__(self, num_classes, in_channels=3, pretrained=True, freeze_bn=False, **_):
         super(SegNet, self).__init__()
-        vgg_bn = models.vgg16_bn(pretrained= pretrained)
+        # vgg_bn = models.vgg16_bn(pretrained= pretrained)
+        vgg_bn = VGG16_BN(pretrained= pretrained)
         encoder = list(vgg_bn.features.children())
 
         # Adjust the input size

@@ -1,13 +1,14 @@
-import torch
 import torch.nn as nn
-from torchvision import models
+# from torchvision import models
 from fcn.utils.utils import set_trainable, get_upsampling_weight
 from itertools import chain
+from fcn.nets.vgg import VGG16
 
 class FCN(nn.Module):
     def __init__(self, num_classes, pretrained=True, freeze_bn=False, **_):
         super(FCN, self).__init__()
-        vgg = models.vgg16(pretrained)
+        # vgg = models.vgg16(pretrained)
+        vgg   = VGG16(pretrained = pretrained)
         features = list(vgg.features.children())
         classifier = list(vgg.classifier.children())
 
