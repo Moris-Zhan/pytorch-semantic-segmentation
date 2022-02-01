@@ -208,7 +208,7 @@ if __name__ == "__main__":
     #------------------------------------------------------#
     #   是否提早結束。
     #------------------------------------------------------#
-    Early_Stopping  = False
+    Early_Stopping  = True
     #------------------------------------------------------#
     #   用於設置是否使用多線程讀取數據
     #   開啟後會加快數據讀取速度，但是會占用更多內存
@@ -344,6 +344,7 @@ if __name__ == "__main__":
         if Freeze_Train:
             loss_history.set_status(freeze=True)            
             model.freeze_backbone()   
+            loss_history.best_epoch_loss = np.Inf 
 
             
         for epoch in range(start_epoch, end_epoch):
@@ -437,6 +438,7 @@ if __name__ == "__main__":
     if Freeze_Train:
         loss_history.set_status(freeze=False)        
         model.unfreeze_backbone() 
+        loss_history.best_epoch_loss = np.Inf 
 
     for epoch in range(start_epoch,end_epoch):
         if (Early_Stopping and loss_history.stopping): break
