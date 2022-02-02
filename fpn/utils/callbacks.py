@@ -48,12 +48,15 @@ class LossHistory():
         t.start()     
 
         # initial EarlyStopping
+        self.patience = patience
+        self.reset_stop()
+           
+        os.makedirs(self.save_path)
+
+    def reset_stop(self):
         self.best_epoch_loss = np.Inf 
         self.stopping = False
         self.counter  = 0
-        self.patience = patience
-
-        os.makedirs(self.save_path)
 
     def set_status(self, freeze):
         self.freeze = freeze

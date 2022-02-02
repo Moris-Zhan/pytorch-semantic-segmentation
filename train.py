@@ -12,10 +12,10 @@ from helps.choose_model import ModelType, check_model
 # from deeplabv3.nets.deeplabv3 import DeepLab as Model
 # from pspnet.nets.pspnet import PSPNet as Model
 # from unet.nets.unet import Unet  as Model
-# from segnet.nets.segnet import SegNet as Model
+from segnet.nets.segnet import SegNet as Model
 # from fcn.nets.fcn import FCN as Model
 # from deconvnet.nets.deconvnet import DeconvNet as Model
-from fpn.nets.fpn import FPN as Model  
+# from fpn.nets.fpn import FPN as Model  
         
 
 '''
@@ -344,7 +344,7 @@ if __name__ == "__main__":
         if Freeze_Train:
             loss_history.set_status(freeze=True)            
             model.freeze_backbone()   
-            loss_history.best_epoch_loss = np.Inf 
+            loss_history.reset_stop()
 
             
         for epoch in range(start_epoch, end_epoch):
@@ -438,7 +438,7 @@ if __name__ == "__main__":
     if Freeze_Train:
         loss_history.set_status(freeze=False)        
         model.unfreeze_backbone() 
-        loss_history.best_epoch_loss = np.Inf 
+        loss_history.reset_stop()
 
     for epoch in range(start_epoch,end_epoch):
         if (Early_Stopping and loss_history.stopping): break
