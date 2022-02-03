@@ -33,12 +33,12 @@ class LossHistory():
         self.freeze = False
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        rndm_input = torch.autograd.Variable(torch.rand(1, 3, 256, 256), requires_grad = False).to(device) 
+        rndm_input = torch.autograd.Variable(torch.rand(1, 3, 224, 224), requires_grad = False).to(device) 
         self.writer.add_graph(model, rndm_input)
 
         f = io.StringIO()
         with redirect_stdout(f):
-            summary(model, (3, 256, 256))
+            summary(model, (3, 224, 224))
         lines = f.getvalue()
         with open(os.path.join(self.log_dir, "summary.txt") ,"w") as f:
             [f.write(line) for line in lines]

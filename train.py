@@ -12,9 +12,9 @@ from helps.choose_model import ModelType, check_model
 # from deeplabv3.nets.deeplabv3 import DeepLab as Model
 # from pspnet.nets.pspnet import PSPNet as Model
 # from unet.nets.unet import Unet  as Model
-from segnet.nets.segnet import SegNet as Model
+# from segnet.nets.segnet import SegNet as Model
 # from fcn.nets.fcn import FCN as Model
-# from deconvnet.nets.deconvnet import DeconvNet as Model
+from deconvnet.nets.deconvnet import DeconvNet as Model
 # from fpn.nets.fpn import FPN as Model  
         
 
@@ -146,7 +146,7 @@ if __name__ == "__main__":
         from deconvnet.utils.dataloader import DeconvNetDataset, deconvnet_dataset_collate
         from deconvnet.utils.utils_fit import fit_one_epoch
         model_path = ""
-        input_shape         = [512, 512] 
+        input_shape         = [224, 224] 
 
     elif modelType == ModelType.FPN: 
         from fpn.nets.fpn_training import weights_init
