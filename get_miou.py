@@ -71,7 +71,7 @@ if __name__ == "__main__":
             os.makedirs(pred_dir)
             
         print("Load model.")
-        model = Model(num_classes)
+        model = Model(num_classes = num_classes)
         print("Load model done.")
 
         print("Get predict result.")

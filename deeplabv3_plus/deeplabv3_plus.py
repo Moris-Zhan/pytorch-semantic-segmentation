@@ -60,8 +60,7 @@ class DeeplabV3(object):
     #---------------------------------------------------#
     #   初始化Deeplab
     #---------------------------------------------------#
-    def __init__(self, num_classes, **kwargs):
-        self._defaults["num_classes"] = num_classes
+    def __init__(self, **kwargs):
         self.__dict__.update(self._defaults)
         for name, value in kwargs.items():
             setattr(self, name, value)
