@@ -28,8 +28,7 @@ class FPN(object):
 
         #   所需要区分的类的个数+1
         #-------------------------------------------------------------------#
-        "model_path"        : 'logs/FPN/ep003-loss0.069-val_loss0.101.pth',
-        "num_classes"       : 20 + 1,         
+        "model_path"        : 'logs/FPN/ep100-loss0.003-val_loss0.016.pth',
         #--------------------------------#
         #   所使用的的主干网络：vgg、resnet50   
         #--------------------------------#
@@ -53,7 +52,8 @@ class FPN(object):
     #---------------------------------------------------#
     #   初始化UNET
     #---------------------------------------------------#
-    def __init__(self, **kwargs):
+    def __init__(self, num_classes, **kwargs):
+        self._defaults["num_classes"] = num_classes
         self.__dict__.update(self._defaults)
         for name, value in kwargs.items():
             setattr(self, name, value)
@@ -78,7 +78,7 @@ class FPN(object):
     #   获得所有的分类
     #---------------------------------------------------#
     def generate(self):
-        self.net = fpn(num_classes = self.num_classes, backbone=self.backbone)
+        self.net = fpn(num_classes = self.num_classes)
 
         device      = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.net.load_state_dict(torch.load(self.model_path, map_location=device))

@@ -29,7 +29,6 @@ class SegNet(object):
         #   所需要区分的类的个数+1
         #-------------------------------------------------------------------#
         "model_path"        : 'logs/SegNet/ep050-loss0.054-val_loss0.075.pth',
-        "num_classes"       : 20 + 1,         
         #--------------------------------#
         #   所使用的的主干网络：vgg、resnet50   
         #--------------------------------#
@@ -53,7 +52,8 @@ class SegNet(object):
     #---------------------------------------------------#
     #   初始化UNET
     #---------------------------------------------------#
-    def __init__(self, **kwargs):
+    def __init__(self, num_classes, **kwargs):
+        self._defaults["num_classes"] = num_classes
         self.__dict__.update(self._defaults)
         for name, value in kwargs.items():
             setattr(self, name, value)

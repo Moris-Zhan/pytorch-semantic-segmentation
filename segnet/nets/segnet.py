@@ -6,7 +6,7 @@ from segnet.nets.vgg import VGG16_BN
 
 
 class SegNet(nn.Module):
-    def __init__(self, num_classes, in_channels=3, pretrained=True, freeze_bn=False, **_):
+    def __init__(self, num_classes, in_channels=3, pretrained=True, **_):
         super(SegNet, self).__init__()
         # vgg_bn = models.vgg16_bn(pretrained= pretrained)
         vgg_bn = VGG16_BN(pretrained= pretrained)
@@ -49,7 +49,6 @@ class SegNet(nn.Module):
 
         self._initialize_weights(self.stage1_decoder, self.stage2_decoder, self.stage3_decoder,
                                     self.stage4_decoder, self.stage5_decoder)
-        if freeze_bn: self.freeze_bn()
         
 
     def _initialize_weights(self, *stages):
@@ -107,11 +106,7 @@ class SegNet(nn.Module):
         return []
 
     def get_decoder_params(self):
-        return self.parameters()
-
-    def freeze_bn(self):
-        for module in self.modules():
-            if isinstance(module, nn.BatchNorm2d): module.eval()
+        return self.parameters()   
 
     def freeze_backbone(self):
         set_trainable([self.stage1_encoder, self.stage2_encoder, self.stage3_encoder, self.stage4_encoder, self.stage5_encoder], False)

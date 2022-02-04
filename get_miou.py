@@ -9,10 +9,10 @@ from helps.choose_model import ModelType, check_model
 # from deeplabv3.deeplabv3 import DeepLabv3 as Model
 # from pspnet.pspnet import PSPNet as Model
 # from unet.unet import Unet as Model
-from segnet.segnet import SegNet as Model
+# from segnet.segnet import SegNet as Model
 # from fcn.fcn import FCN as Model
 # from deconvnet.deconvnet import DeconvNet as Model
-# from fpn.fpn import FPN as Model    
+from fpn.fpn import FPN as Model    
 
 '''
 进行指标评估需要注意以下几点：
@@ -71,7 +71,7 @@ if __name__ == "__main__":
             os.makedirs(pred_dir)
             
         print("Load model.")
-        model = Model()
+        model = Model(num_classes)
         print("Load model done.")
 
         print("Get predict result.")
