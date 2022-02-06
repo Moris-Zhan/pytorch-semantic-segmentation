@@ -7,13 +7,14 @@ import os
 import cv2
 import numpy as np
 from PIL import Image
+from helps.choose_data import DataType, get_data
 
 # from deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
-# from deeplabv3.deeplabv3 import DeepLabv3 as Model
+from deeplabv3.deeplabv3 import DeepLabv3 as Model
 # from pspnet.pspnet import PSPNet as Model
 # from unet.unet import Unet as Model
 # from segnet.segnet import SegNet as Model
-from fcn.fcn import FCN as Model
+# from fcn.fcn import FCN as Model
 # from deconvnet.deconvnet import DeconvNet as Model
 # from fpn.fpn import FPN as Model
 
@@ -24,6 +25,7 @@ if __name__ == "__main__":
     #-------------------------------------------------------------------------#
     #   如果想要修改对应种类的颜色，到generate函数里修改self.colors即可
     #-------------------------------------------------------------------------#
+    VOCdevkit_path, num_classes, _, name_classes = get_data(root_path, DataType.LANE)
     model = Model()
     #----------------------------------------------------------------------------------------------------------#
     #   mode用于指定测试的模式：

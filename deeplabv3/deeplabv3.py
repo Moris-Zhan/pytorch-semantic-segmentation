@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from PIL import Image
 from torch import nn
 
-from deeplabv3.nets.deeplabv3 import DeepLab as DeepLabv3
+from deeplabv3.nets.deeplabv3 import DeepLab as DeepLab
 from deeplabv3.utils.utils import cvtColor, preprocess_input, resize_image
 
 
@@ -28,7 +28,7 @@ class DeepLabv3(object):
 
         #   所需要区分的类的个数+1
         #-------------------------------------------------------------------#
-        "model_path"        : 'logs/DeepLabv3/ep003-loss0.069-val_loss0.101.pth',
+        "model_path"        : 'logs/DeepLabv3/ep009-loss0.029-val_loss0.030.pth',
         #--------------------------------#
         #   所使用的的主干网络：vgg、resnet50   
         #--------------------------------#
@@ -77,7 +77,7 @@ class DeepLabv3(object):
     #   获得所有的分类
     #---------------------------------------------------#
     def generate(self):
-        self.net = DeepLabv3(num_classes = self.num_classes, backbone=self.backbone)
+        self.net = DeepLab(num_classes = self.num_classes)
 
         device      = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.net.load_state_dict(torch.load(self.model_path, map_location=device))

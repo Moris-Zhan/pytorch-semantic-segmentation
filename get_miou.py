@@ -6,13 +6,13 @@ from helps.choose_data import DataType, get_data
 from helps.choose_model import ModelType, check_model
 
 # from deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
-# from deeplabv3.deeplabv3 import DeepLabv3 as Model
+from deeplabv3.deeplabv3 import DeepLabv3 as Model
 # from pspnet.pspnet import PSPNet as Model
 # from unet.unet import Unet as Model
 # from segnet.segnet import SegNet as Model
 # from fcn.fcn import FCN as Model
 # from deconvnet.deconvnet import DeconvNet as Model
-from fpn.fpn import FPN as Model    
+# from fpn.fpn import FPN as Model    
 
 '''
 进行指标评估需要注意以下几点：
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     #   区分的种类，和json_to_dataset里面的一样
     #   指向VOC数据集所在的文件夹
     root_path = "D://WorkSpace//JupyterWorkSpace//DataSet"
-    VOCdevkit_path, num_classes, _, name_classes = get_data(root_path, DataType.VOC)
+    VOCdevkit_path, num_classes, _, name_classes = get_data(root_path, DataType.LANE)
     #------------------------------#
     modelType = check_model(Model.__module__)
     if modelType == ModelType.DEEPLABV3_PLUS: 

@@ -9,12 +9,12 @@ from helps.choose_data import DataType, get_data
 from helps.choose_model import ModelType, check_model
 
 # from deeplabv3_plus.nets.deeplabv3_plus import DeepLab as Model
-# from deeplabv3.nets.deeplabv3 import DeepLab as Model
+from deeplabv3.nets.deeplabv3 import DeepLab as Model
 # from pspnet.nets.pspnet import PSPNet as Model
 # from unet.nets.unet import Unet  as Model
 # from segnet.nets.segnet import SegNet as Model
 # from fcn.nets.fcn import FCN as Model
-from deconvnet.nets.deconvnet import DeconvNet as Model
+# from deconvnet.nets.deconvnet import DeconvNet as Model
 # from fpn.nets.fpn import FPN as Model  
         
 
@@ -45,7 +45,7 @@ from deconvnet.nets.deconvnet import DeconvNet as Model
 if __name__ == "__main__":       
     #------------------------------#
     root_path = "D://WorkSpace//JupyterWorkSpace//DataSet"
-    VOCdevkit_path, num_classes, cls_weights, _ = get_data(root_path, DataType.VOC)
+    VOCdevkit_path, num_classes, cls_weights, _ = get_data(root_path, DataType.LANE)
     #-------------------------------#
     #   是否使用Cuda
     #   沒有GPU可以設置成False

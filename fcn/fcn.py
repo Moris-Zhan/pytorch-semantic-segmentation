@@ -77,7 +77,7 @@ class FCN(object):
     #   获得所有的分类
     #---------------------------------------------------#
     def generate(self):
-        self.net = fcn(num_classes = self.num_classes, backbone=self.backbone)
+        self.net = fcn(num_classes = self.num_classes)
 
         device      = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.net.load_state_dict(torch.load(self.model_path, map_location=device))
