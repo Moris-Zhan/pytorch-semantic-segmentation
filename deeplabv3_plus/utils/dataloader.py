@@ -1,5 +1,4 @@
 import os
-from copy import deepcopy
 import cv2
 import numpy as np
 from PIL import Image

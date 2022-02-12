@@ -12,12 +12,7 @@ from contextlib import redirect_stdout
 import threading
 import webbrowser
 import numpy as np
-
-def launchTensorBoard(tensorBoardPath, port = 8888):
-    os.system('tensorboard --logdir=%s --port=%s'%(tensorBoardPath, port))
-    url = "http://localhost:%s/"%(port)
-    # webbrowser.open_new(url)
-    return
+from copy import deepcopy
 
 class LossHistory():
     def __init__(self, model, patience = 5):
@@ -32,19 +27,12 @@ class LossHistory():
         self.writer = SummaryWriter(log_dir=os.path.join(self.log_dir, "run_" + str(self.time_str)))        
         self.freeze = False
 
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        rndm_input = torch.autograd.Variable(torch.rand(1, 3, 224, 224), requires_grad = False).to(device) 
-        self.writer.add_graph(model, rndm_input)
-
-        f = io.StringIO()
-        with redirect_stdout(f):
-            summary(model, (3, 224, 224))
-        lines = f.getvalue()
-        with open(os.path.join(self.log_dir, "summary.txt") ,"w") as f:
-            [f.write(line) for line in lines]
+        # write model summary
+        x = threading.Thread(target=self.write_summary, args=([deepcopy(model.module).cpu()]))
+        x.start() 
 
         # launch tensorboard
-        t = threading.Thread(target=launchTensorBoard, args=([self.log_dir]))
+        t = threading.Thread(target=self.launchTensorBoard, args=([self.log_dir]))
         t.start()     
 
         # initial EarlyStopping
@@ -52,6 +40,29 @@ class LossHistory():
         self.reset_stop()
            
         os.makedirs(self.save_path)
+    
+    def write_summary(self, cpu_model):
+        print("write model summary ready")
+        rndm_input = torch.autograd.Variable(torch.rand(1, 3, 224, 224), requires_grad = False).cpu()
+        self.writer.add_graph(cpu_model, rndm_input)
+
+        print("tensroboard model summary finished")
+
+        f = io.StringIO()
+        with redirect_stdout(f):
+            summary(cpu_model, (3, 224, 224), device="cpu")
+        lines = f.getvalue()
+        with open(os.path.join(self.log_dir, "summary.txt") ,"w") as f:
+            [f.write(line) for line in lines]
+
+        print("write model summary finished")
+        return
+
+    def launchTensorBoard(self, tensorBoardPath, port = 8888):
+        os.system('tensorboard --logdir=%s --port=%s'%(tensorBoardPath, port))
+        url = "http://localhost:%s/"%(port)
+        # webbrowser.open_new(url)
+        return
 
     def reset_stop(self):
         self.best_epoch_loss = np.Inf 
