@@ -112,6 +112,12 @@ The Cityscapes Dataset focuses on semantic understanding of urban street scenes.
 * **numpy**
 * **torchvision 0.4**
 
+## Requirenents
+
+```python
+pip install -r requirements.txt -f https://download.pytorch.org/whl/torch_stable.html
+```
+
 ## Usage
 ### 1. Prepare the dataset
 * **Create your own `dataset_annotation.py` then create `Segmentation/train.txt` , `Segmentation/val.txt` let data to load.** 
