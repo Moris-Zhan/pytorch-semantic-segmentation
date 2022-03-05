@@ -9,8 +9,8 @@ import numpy as np
 from PIL import Image
 from helps.choose_data import DataType, get_data
 
-# from deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
-from deeplabv3.deeplabv3 import DeepLabv3 as Model
+from deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
+# from deeplabv3.deeplabv3 import DeepLabv3 as Model
 # from pspnet.pspnet import PSPNet as Model
 # from unet.unet import Unet as Model
 # from segnet.segnet import SegNet as Model
@@ -19,7 +19,7 @@ from deeplabv3.deeplabv3 import DeepLabv3 as Model
 # from fpn.fpn import FPN as Model
 
 if __name__ == "__main__":
-    root_path = "D://WorkSpace//JupyterWorkSpace//DataSet//LANEdevkit"
+    root_path = "D://WorkSpace//JupyterWorkSpace//DataSet"
     # root_path = "D://WorkSpace//JupyterWorkSpace//DataSet//LANEdevkit"
     # root_path = "D://WorkSpace//JupyterWorkSpace//DataSet//ICME2022"
     #-------------------------------------------------------------------------#
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     #----------------------------------------------------------------------------------------------------------#
     # video_path      = 0
     # video_save_path = ""
-    video_path      = os.path.join(root_path, "Drive-View-Kaohsiung-Taiwan.mp4")
+    video_path      = os.path.join(VOCdevkit_path, "Drive-View-Kaohsiung-Taiwan.mp4")
     # video_path      = os.path.join(root_path, "Videos/raw_footage_1_colombo_AdobeCreativeCloudExpress.mp4")
 
     video_save_dir =os.path.join("pred_out", Model.__module__)

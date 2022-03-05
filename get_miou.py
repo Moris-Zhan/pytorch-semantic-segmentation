@@ -5,8 +5,8 @@ from tqdm import tqdm
 from helps.choose_data import DataType, get_data
 from helps.choose_model import ModelType, check_model
 
-# from deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
-from deeplabv3.deeplabv3 import DeepLabv3 as Model
+from deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
+# from deeplabv3.deeplabv3 import DeepLabv3 as Model
 # from pspnet.pspnet import PSPNet as Model
 # from unet.unet import Unet as Model
 # from segnet.segnet import SegNet as Model

@@ -17,9 +17,16 @@ scipy==1.4.1
 tqdm==4.41.0
 
 torchsummary==1.5.1 
-torch==1.8.1+cu102 
-torchvision==0.9.1+cu102 
-torchaudio==0.8.1
+
+# 1660
+# torch==1.8.1+cu102 
+# torchvision==0.9.1+cu102 
+# torchaudio==0.8.1
+
+# 3060
+torch==1.9.0+cu111 
+torchvision==0.10.0+cu111 
+torchaudio==0.9.0
 
 tensorflow-gpu==2.2.0                     
 tensorboard==2.2.0                                 

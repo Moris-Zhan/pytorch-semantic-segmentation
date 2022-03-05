@@ -8,8 +8,8 @@ from torch.utils.data import DataLoader
 from helps.choose_data import DataType, get_data
 from helps.choose_model import ModelType, check_model
 
-# from deeplabv3_plus.nets.deeplabv3_plus import DeepLab as Model
-from deeplabv3.nets.deeplabv3 import DeepLab as Model
+from deeplabv3_plus.nets.deeplabv3_plus import DeepLab as Model
+# from deeplabv3.nets.deeplabv3 import DeepLab as Model
 # from pspnet.nets.pspnet import PSPNet as Model
 # from unet.nets.unet import Unet  as Model
 # from segnet.nets.segnet import SegNet as Model
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     #----------------------------------------------------#
     Init_Epoch          = 0
     max_Freeze_Epoch    = 50
-    Freeze_batch_size   = int(8/4)
+    Freeze_batch_size   = int(8/1)
     Freeze_lr           = 5e-4
     #----------------------------------------------------#
     #   解凍階段訓練參數
@@ -188,7 +188,7 @@ if __name__ == "__main__":
     #   占用的顯存較大，網絡所有的參數都會發生改變
     #----------------------------------------------------#
     max_UnFreeze_Epoch  = 100
-    Unfreeze_batch_size = int(4/2)
+    Unfreeze_batch_size = int(4/1)
     Unfreeze_lr         = 5e-5    
     #---------------------------------------------------------------------# 
     #   建議選項：
