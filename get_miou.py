@@ -5,14 +5,14 @@ from tqdm import tqdm
 from helps.choose_data import DataType, get_data
 from helps.choose_model import ModelType, check_model
 
-from deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
-# from deeplabv3.deeplabv3 import DeepLabv3 as Model
-# from pspnet.pspnet import PSPNet as Model
-# from unet.unet import Unet as Model
-# from segnet.segnet import SegNet as Model
-# from fcn.fcn import FCN as Model
-# from deconvnet.deconvnet import DeconvNet as Model
-# from fpn.fpn import FPN as Model    
+from seg_model.deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
+# from seg_model.deeplabv3.deeplabv3 import DeepLabv3 as Model
+# from seg_model.pspnet.pspnet import PSPNet as Model
+# from seg_model.unet.unet import Unet as Model
+# from seg_model.segnet.segnet import SegNet as Model
+# from seg_model.fcn.fcn import FCN as Model
+# from seg_model.deconvnet.deconvnet import DeconvNet as Model
+# from seg_model.fpn.fpn import FPN as Model    
 
 '''
 进行指标评估需要注意以下几点：
@@ -29,28 +29,28 @@ if __name__ == "__main__":
     #------------------------------#
     modelType = check_model(Model.__module__)
     if modelType == ModelType.DEEPLABV3_PLUS: 
-        from deeplabv3_plus.utils.utils_metrics import compute_mIoU, show_results
+        from seg_model.deeplabv3_plus.utils.utils_metrics import compute_mIoU, show_results
 
     elif modelType == ModelType.DEEPLABV3: 
-        from deeplabv3.utils.utils_metrics import compute_mIoU, show_results
+        from seg_model.deeplabv3.utils.utils_metrics import compute_mIoU, show_results
 
     elif modelType == ModelType.PSPNET: 
-        from pspnet.utils.utils_metrics import compute_mIoU, show_results
+        from seg_model.pspnet.utils.utils_metrics import compute_mIoU, show_results
 
     elif modelType == ModelType.UNET: 
-        from unet.utils.utils_metrics import compute_mIoU, show_results
+        from seg_model.unet.utils.utils_metrics import compute_mIoU, show_results
 
     elif modelType == ModelType.SEGNET: 
-        from segnet.utils.utils_metrics import compute_mIoU, show_results
+        from seg_model.segnet.utils.utils_metrics import compute_mIoU, show_results
 
     elif modelType == ModelType.FCN: 
-        from fcn.utils.utils_metrics import compute_mIoU, show_results
+        from seg_model.fcn.utils.utils_metrics import compute_mIoU, show_results
 
     elif modelType == ModelType.DeconvNet: 
-        from deconvnet.utils.utils_metrics import compute_mIoU, show_results
+        from seg_model.deconvnet.utils.utils_metrics import compute_mIoU, show_results
 
     elif modelType == ModelType.FPN: 
-        from fpn.utils.utils_metrics import compute_mIoU, show_results
+        from seg_model.fpn.utils.utils_metrics import compute_mIoU, show_results
   
     
     #---------------------------------------------------------------------------#

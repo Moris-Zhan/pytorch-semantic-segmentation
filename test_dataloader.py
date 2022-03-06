@@ -9,10 +9,10 @@ from torch.utils.data import DataLoader
 # from yolov4.utils.dataloader import YoloDataset as Dataset , yolo_dataset_collate as dataset_collate
 # from yolov4.utils.utils import get_classes
 
-from pspnet.nets.pspnet_training import weights_init
-from pspnet.utils.callbacks import LossHistory
-from pspnet.utils.utils_fit import fit_one_epoch
-from pspnet.utils.dataloader import PSPnetDataset, pspnet_dataset_collate
+from seg_model.pspnet.nets.pspnet_training import weights_init
+from seg_model.pspnet.utils.callbacks import LossHistory
+from seg_model.pspnet.utils.utils_fit import fit_one_epoch
+from seg_model.pspnet.utils.dataloader import PSPnetDataset, pspnet_dataset_collate
 
 from tqdm import tqdm
 

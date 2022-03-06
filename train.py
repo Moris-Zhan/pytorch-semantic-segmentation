@@ -8,14 +8,14 @@ from torch.utils.data import DataLoader
 from helps.choose_data import DataType, get_data
 from helps.choose_model import ModelType, check_model
 
-from deeplabv3_plus.nets.deeplabv3_plus import DeepLab as Model
-# from deeplabv3.nets.deeplabv3 import DeepLab as Model
-# from pspnet.nets.pspnet import PSPNet as Model
-# from unet.nets.unet import Unet  as Model
-# from segnet.nets.segnet import SegNet as Model
-# from fcn.nets.fcn import FCN as Model
-# from deconvnet.nets.deconvnet import DeconvNet as Model
-# from fpn.nets.fpn import FPN as Model  
+# from seg_model.deeplabv3_plus.nets.deeplabv3_plus import DeepLab as Model
+# from seg_model.deeplabv3.nets.deeplabv3 import DeepLab as Model
+# from seg_model.pspnet.nets.pspnet import PSPNet as Model
+# from seg_model.unet.nets.unet import Unet  as Model
+# from seg_model.segnet.nets.segnet import SegNet as Model
+# from seg_model.fcn.nets.fcn import FCN as Model
+# from seg_model.deconvnet.nets.deconvnet import DeconvNet as Model
+from seg_model.fpn.nets.fpn import FPN as Model  
         
 
 '''
@@ -89,20 +89,20 @@ if __name__ == "__main__":
     #----------------------------------------------------------------------------------------------------------------------------#
     modelType = check_model(Model.__module__)
     if modelType == ModelType.DEEPLABV3_PLUS:
-        from deeplabv3_plus.nets.deeplabv3_training import weights_init
-        from deeplabv3_plus.utils.callbacks import LossHistory
-        from deeplabv3_plus.utils.dataloader import DeeplabDataset, deeplab_dataset_collate
-        from deeplabv3_plus.utils.utils_fit import fit_one_epoch
+        from seg_model.deeplabv3_plus.nets.deeplabv3_training import weights_init
+        from seg_model.deeplabv3_plus.utils.callbacks import LossHistory
+        from seg_model.deeplabv3_plus.utils.dataloader import DeeplabDataset, deeplab_dataset_collate
+        from seg_model.deeplabv3_plus.utils.utils_fit import fit_one_epoch
 
         model_path  = "model_data/deeplab_mobilenetv2.pth" # deeplabv3_plus
         input_shape         = [512, 512] 
         backbone    = "mobilenet"
 
     elif modelType == ModelType.PSPNET:
-        from pspnet.nets.pspnet_training import weights_init
-        from pspnet.utils.callbacks import LossHistory
-        from pspnet.utils.utils_fit import fit_one_epoch
-        from pspnet.utils.dataloader import PSPnetDataset, pspnet_dataset_collate
+        from seg_model.pspnet.nets.pspnet_training import weights_init
+        from seg_model.pspnet.utils.callbacks import LossHistory
+        from seg_model.pspnet.utils.utils_fit import fit_one_epoch
+        from seg_model.pspnet.utils.dataloader import PSPnetDataset, pspnet_dataset_collate
 
         model_path  = "model_data/pspnet_mobilenetv2.pth" # pspnet
         input_shape         = [473, 473] 
@@ -114,53 +114,53 @@ if __name__ == "__main__":
         aux_branch      = False             # pspnet
 
     elif modelType == ModelType.UNET:
-        from unet.nets.unet_training import weights_init
-        from unet.utils.callbacks import LossHistory
-        from unet.utils.dataloader import UnetDataset, unet_dataset_collate
-        from unet.utils.utils_fit import fit_one_epoch
+        from seg_model.unet.nets.unet_training import weights_init
+        from seg_model.unet.utils.callbacks import LossHistory
+        from seg_model.unet.utils.dataloader import UnetDataset, unet_dataset_collate
+        from seg_model.unet.utils.utils_fit import fit_one_epoch
 
         model_path  = "model_data/unet_vgg_voc.pth" # unet
         input_shape         = [512, 512] 
         backbone    = "vgg"   
 
     elif modelType == ModelType.SEGNET:
-        # from segnet.nets.segresnet import SegResNet as Model
-        from segnet.nets.segnet_training import weights_init
-        from segnet.utils.callbacks import LossHistory
-        from segnet.utils.dataloader import SegNetDataset, segnet_dataset_collate
-        from segnet.utils.utils_fit import fit_one_epoch
+        # from seg_model.segnet.nets.segresnet import SegResNet as Model
+        from seg_model.segnet.nets.segnet_training import weights_init
+        from seg_model.segnet.utils.callbacks import LossHistory
+        from seg_model.segnet.utils.dataloader import SegNetDataset, segnet_dataset_collate
+        from seg_model.segnet.utils.utils_fit import fit_one_epoch
         model_path = ""
         input_shape         = [512, 512] 
 
     elif modelType == ModelType.FCN:
-        from fcn.nets.fcn_training import weights_init
-        from fcn.utils.callbacks import LossHistory
-        from fcn.utils.dataloader import FCNDataset, fcn_dataset_collate
-        from fcn.utils.utils_fit import fit_one_epoch
+        from seg_model.fcn.nets.fcn_training import weights_init
+        from seg_model.fcn.utils.callbacks import LossHistory
+        from seg_model.fcn.utils.dataloader import FCNDataset, fcn_dataset_collate
+        from seg_model.fcn.utils.utils_fit import fit_one_epoch
         model_path = ""
         input_shape         = [512, 512] 
 
     elif modelType == ModelType.DeconvNet: 
-        from deconvnet.nets.deconvnet_training import weights_init
-        from deconvnet.utils.callbacks import LossHistory
-        from deconvnet.utils.dataloader import DeconvNetDataset, deconvnet_dataset_collate
-        from deconvnet.utils.utils_fit import fit_one_epoch
+        from seg_model.deconvnet.nets.deconvnet_training import weights_init
+        from seg_model.deconvnet.utils.callbacks import LossHistory
+        from seg_model.deconvnet.utils.dataloader import DeconvNetDataset, deconvnet_dataset_collate
+        from seg_model.deconvnet.utils.utils_fit import fit_one_epoch
         model_path = ""
         input_shape         = [224, 224] 
 
     elif modelType == ModelType.FPN: 
-        from fpn.nets.fpn_training import weights_init
-        from fpn.utils.callbacks import LossHistory
-        from fpn.utils.dataloader import FPNDataset, fpn_dataset_collate
-        from fpn.utils.utils_fit import fit_one_epoch
+        from seg_model.fpn.nets.fpn_training import weights_init
+        from seg_model.fpn.utils.callbacks import LossHistory
+        from seg_model.fpn.utils.dataloader import FPNDataset, fpn_dataset_collate
+        from seg_model.fpn.utils.utils_fit import fit_one_epoch
         model_path = ""
         input_shape         = [512, 512] 
 
     elif modelType == ModelType.DEEPLABV3:
-        from deeplabv3.nets.deeplabv3_training import weights_init
-        from deeplabv3.utils.callbacks import LossHistory
-        from deeplabv3.utils.dataloader import DeeplabDataset, deeplab_dataset_collate
-        from deeplabv3.utils.utils_fit import fit_one_epoch
+        from seg_model.deeplabv3.nets.deeplabv3_training import weights_init
+        from seg_model.deeplabv3.utils.callbacks import LossHistory
+        from seg_model.deeplabv3.utils.dataloader import DeeplabDataset, deeplab_dataset_collate
+        from seg_model.deeplabv3.utils.utils_fit import fit_one_epoch
         model_path = ""
         input_shape         = [512, 512] 
     #---------------------------------------------------------#
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     #   占用的顯存較小，僅對網絡進行微調
     #----------------------------------------------------#
     Init_Epoch          = 0
-    max_Freeze_Epoch    = 50
+    Freeze_Epoch    = 50
     Freeze_batch_size   = int(8/1)
     Freeze_lr           = 5e-4
     #----------------------------------------------------#
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     #   此時模型的主幹不被凍結了，特征提取網絡會發生改變
     #   占用的顯存較大，網絡所有的參數都會發生改變
     #----------------------------------------------------#
-    max_UnFreeze_Epoch  = 100
+    UnFreeze_Epoch  = 100
     Unfreeze_batch_size = int(4/1)
     Unfreeze_lr         = 5e-5    
     #---------------------------------------------------------------------# 
@@ -258,7 +258,8 @@ if __name__ == "__main__":
 
     with open(os.path.join(VOCdevkit_path, "Segmentation//val.txt"),"r") as f:
         val_lines = f.readlines()
-        
+    num_train   = len(train_lines)
+    num_val     = len(val_lines)        
     #------------------------------------------------------#
     #   主幹特征提取網絡特征通用，凍結訓練可以加快訓練速度
     #   也可以在訓練初期防止權值被破壞。
@@ -268,88 +269,113 @@ if __name__ == "__main__":
     #   提示OOM或者顯存不足請調小Batch_size
     #------------------------------------------------------#
     if True:
-        batch_size  = Freeze_batch_size
-        lr          = Freeze_lr
-        start_epoch = Init_Epoch
-        end_epoch   = max_Freeze_Epoch
+        UnFreeze_flag = False 
+        #-------------------------------------------------------------------#
+        #   如果不冻结训练的话，直接设置batch_size为Unfreeze_batch_size
+        #-------------------------------------------------------------------#
+        batch_size = Freeze_batch_size if Freeze_Train else Unfreeze_batch_size
+        end_epoch = Freeze_Epoch if Freeze_Train else UnFreeze_Epoch
 
-        epoch_step      = len(train_lines) // batch_size
-        epoch_step_val  = len(val_lines) // batch_size
-        
-        if epoch_step == 0 or epoch_step_val == 0:
-            raise ValueError("數據集過小，無法進行訓練，請擴充數據集。")
-
+        if Freeze_Train:
+            #------------------------------------#
+            #   凍結一定部分訓練
+            #------------------------------------#
+            loss_history.set_status(freeze=True)
+            model.freeze_backbone() 
+            loss_history.reset_stop()
+            lr          = Freeze_lr
+        else:
+            #------------------------------------#
+            #   解凍後訓練
+            #------------------------------------#
+            loss_history.set_status(freeze=False)
+            model.unfreeze_backbone()   
+            loss_history.reset_stop() 
+            lr          = Unfreeze_lr
+        #-------------------------------------------------------------------#      
         optimizer       = optim.Adam(model_train.parameters(), lr, weight_decay = 5e-4)
         lr_scheduler    = optim.lr_scheduler.StepLR(optimizer, step_size = 1, gamma = 0.94)
+        #-------------------------------------------------------------------#
 
         if modelType in [ModelType.DEEPLABV3_PLUS, ModelType.DEEPLABV3]:
             train_dataset   = DeeplabDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
             val_dataset     = DeeplabDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = deeplab_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                        drop_last = True, collate_fn = deeplab_dataset_collate)
+            dataset_collate = deeplab_dataset_collate           
 
         elif modelType == ModelType.PSPNET:
             train_dataset   = PSPnetDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
             val_dataset     = PSPnetDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = pspnet_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                        drop_last = True, collate_fn = pspnet_dataset_collate)
+            dataset_collate = pspnet_dataset_collate            
         
         elif modelType == ModelType.UNET:
             train_dataset   = UnetDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
             val_dataset     = UnetDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = unet_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                    drop_last = True, collate_fn = unet_dataset_collate)
+            dataset_collate = unet_dataset_collate           
 
         elif modelType == ModelType.SEGNET:
             train_dataset   = SegNetDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
             val_dataset     = SegNetDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = segnet_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                    drop_last = True, collate_fn = segnet_dataset_collate)
+            dataset_collate = segnet_dataset_collate
+            
 
         elif modelType == ModelType.FCN:
             train_dataset   = FCNDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
             val_dataset     = FCNDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = fcn_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                    drop_last = True, collate_fn = fcn_dataset_collate)
-
+            dataset_collate = fcn_dataset_collate            
+        
         elif modelType == ModelType.DeconvNet:
             train_dataset   = DeconvNetDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
             val_dataset     = DeconvNetDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = deconvnet_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                    drop_last = True, collate_fn = deconvnet_dataset_collate)
+            dataset_collate = deconvnet_dataset_collate            
 
         elif modelType == ModelType.FPN:
             train_dataset   = FPNDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
             val_dataset     = FPNDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = fpn_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                    drop_last = True, collate_fn = fpn_dataset_collate)
-    
-        #------------------------------------#
-        #   凍結一定部分訓練
-        #------------------------------------#
-        if Freeze_Train:
-            loss_history.set_status(freeze=True)            
-            model.freeze_backbone()   
-            loss_history.reset_stop()
+            dataset_collate = fpn_dataset_collate
+           
+        gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
+                                        drop_last=True, collate_fn=dataset_collate)
+        gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
+                                    drop_last=True, collate_fn=dataset_collate)   
+        epoch_step      = num_train // batch_size
+        epoch_step_val  = num_val // batch_size
 
-            
-        for epoch in range(start_epoch, end_epoch):
-            next_UnFreeze_Epoch = epoch + 1
-            # if (Early_Stopping and loss_history.stopping): break
+        if epoch_step == 0 or epoch_step_val == 0:
+            raise ValueError("数据集过小，无法继续进行训练，请扩充数据集。")
+        #---------------------------------------#
+        #   开始模型训练
+        #---------------------------------------#
+        for epoch in range(Init_Epoch, UnFreeze_Epoch):
+            #---------------------------------------#
+            #   如果模型有冻结学习部分
+            #   则解冻，并设置参数
+            #---------------------------------------#
+            if epoch >= Freeze_Epoch and not UnFreeze_flag and Freeze_Train:                            
+
+                epoch_step      = num_train // batch_size
+                epoch_step_val  = num_val // batch_size
+
+                if epoch_step == 0 or epoch_step_val == 0:
+                    raise ValueError("数据集过小，无法继续进行训练，请扩充数据集。")                   
+                #-----------------------------------------------------------------------------------------#
+                print("End of Freeze Training")
+                UnFreeze_flag = True
+                #-----------------------------------------------------------------------------------------#
+                batch_size = Unfreeze_batch_size   
+                end_epoch = UnFreeze_Epoch
+                lr          = Unfreeze_lr
+               
+                optimizer       = optim.Adam(model_train.parameters(), lr, weight_decay = 5e-4)
+                lr_scheduler    = optim.lr_scheduler.StepLR(optimizer, step_size = 1, gamma = 0.94)
+                
+                loss_history.set_status(freeze=False)
+                model.unfreeze_backbone()   
+                loss_history.reset_stop() 
+                #-----------------------------------------------------------------------------------------#    
+                        
+            # only early stop when UnFreeze Training
+            if (UnFreeze_flag and Early_Stopping and loss_history.stopping): break
+
             if modelType == ModelType.PSPNET:
                 # PSPNet
                 fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
@@ -357,99 +383,7 @@ if __name__ == "__main__":
             else:
                 # other
                 fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
-                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, num_classes)                          
+                        epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, num_classes)           
             lr_scheduler.step()
-        print("End of Freeze Training")
-    
-    if True:
-        batch_size  = Unfreeze_batch_size
-        lr          = Unfreeze_lr   
-        start_epoch = next_UnFreeze_Epoch
-        end_epoch   = max_UnFreeze_Epoch
 
-        epoch_step      = len(train_lines) // batch_size
-        epoch_step_val  = len(val_lines) // batch_size
-
-        if epoch_step == 0 or epoch_step_val == 0:
-            raise ValueError("數據集過小，無法進行訓練，請擴充數據集。")
-
-        optimizer       = optim.Adam(model_train.parameters(), lr, weight_decay = 5e-4)
-        lr_scheduler    = optim.lr_scheduler.StepLR(optimizer, step_size = 1, gamma = 0.94)
-
-        if modelType in [ModelType.DEEPLABV3_PLUS, ModelType.DEEPLABV3]:
-            train_dataset   = DeeplabDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
-            val_dataset     = DeeplabDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = deeplab_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                        drop_last = True, collate_fn = deeplab_dataset_collate)
-
-        elif modelType == ModelType.PSPNET:
-            train_dataset   = PSPnetDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
-            val_dataset     = PSPnetDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = pspnet_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                        drop_last = True, collate_fn = pspnet_dataset_collate)
-        
-        elif modelType == ModelType.UNET:
-            train_dataset   = UnetDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
-            val_dataset     = UnetDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = unet_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                    drop_last = True, collate_fn = unet_dataset_collate)
-
-        elif modelType == ModelType.SEGNET:
-            train_dataset   = SegNetDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
-            val_dataset     = SegNetDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = segnet_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                    drop_last = True, collate_fn = segnet_dataset_collate)
-
-        elif modelType == ModelType.FCN:
-            train_dataset   = FCNDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
-            val_dataset     = FCNDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = fcn_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                    drop_last = True, collate_fn = fcn_dataset_collate)
-        
-        elif modelType == ModelType.DeconvNet:
-            train_dataset   = DeconvNetDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
-            val_dataset     = DeconvNetDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = deconvnet_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                    drop_last = True, collate_fn = deconvnet_dataset_collate)
-
-        elif modelType == ModelType.FPN:
-            train_dataset   = FPNDataset(train_lines, input_shape, num_classes, True, VOCdevkit_path)
-            val_dataset     = FPNDataset(val_lines, input_shape, num_classes, False, VOCdevkit_path)
-            gen             = DataLoader(train_dataset, shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True,
-                                        drop_last = True, collate_fn = fpn_dataset_collate)
-            gen_val         = DataLoader(val_dataset  , shuffle = True, batch_size = batch_size, num_workers = num_workers, pin_memory=True, 
-                                    drop_last = True, collate_fn = fpn_dataset_collate)    
-
-    #------------------------------------#
-    #   解凍後訓練
-    #------------------------------------#
-    if Freeze_Train:
-        loss_history.set_status(freeze=False)        
-        model.unfreeze_backbone() 
-        loss_history.reset_stop()
-
-    for epoch in range(start_epoch,end_epoch):
-        if (Early_Stopping and loss_history.stopping): break
-        if modelType == ModelType.PSPNET:
-            # PSPNet
-            fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
-                    epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, aux_branch, num_classes) 
-        else:
-            # other
-            fit_one_epoch(model_train, model, loss_history, optimizer, epoch, 
-                    epoch_step, epoch_step_val, gen, gen_val, end_epoch, Cuda, dice_loss, focal_loss, cls_weights, num_classes)        
-                            
-        lr_scheduler.step()
-    print("End of UnFreeze Training")
+        print("End of UnFreeze Training")

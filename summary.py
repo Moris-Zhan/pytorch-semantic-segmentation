@@ -4,7 +4,7 @@
 import torch
 from torchsummary import summary
 
-from deeplabv3_plus.nets.deeplabv3_plus import DeepLab
+from seg_model.deeplabv3_plus.nets.deeplabv3_plus import DeepLab
 
 if __name__ == "__main__":
     # 需要使用device来指定网络在GPU还是CPU运行

@@ -6,14 +6,14 @@ import torch.backends.cudnn as cudnn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-# from deeplabv3_plus.nets.deeplabv3_plus import DeepLab as Model
-# from deeplabv3.nets.deeplabv3 import DeepLab as Model
-# from pspnet.nets.pspnet import PSPNet as Model
-# from unet.nets.unet import Unet  as Model
-# from segnet.nets.segnet import SegNet as Model
-from fcn.nets.fcn import FCN as Model
-# from deconvnet.nets.deconvnet import DeconvNet as Model
-# from fpn.nets.fpn import FPN as Model
+# from seg_model.deeplabv3_plus.nets.deeplabv3_plus import DeepLab as Model
+# from seg_model.deeplabv3.nets.deeplabv3 import DeepLab as Model
+# from seg_model.pspnet.nets.pspnet import PSPNet as Model
+# from seg_model.unet.nets.unet import Unet  as Model
+# from seg_model.segnet.nets.segnet import SegNet as Model
+from seg_model.fcn.nets.fcn import FCN as Model
+# from seg_model.deconvnet.nets.deconvnet import DeconvNet as Model
+# from seg_model.fpn.nets.fpn import FPN as Model
 
 
 
@@ -135,20 +135,20 @@ if __name__ == "__main__":
     #----------------------------------------------------------------------------------------------------------------------------#
     modelType = check_model(Model.__module__)
     if modelType == ModelType.DEEPLABV3_PLUS:
-        from deeplabv3_plus.nets.deeplabv3_training import weights_init
-        from deeplabv3_plus.utils.callbacks import LossHistory
-        from deeplabv3_plus.utils.dataloader import DeeplabDataset, deeplab_dataset_collate
-        from deeplabv3_plus.utils.utils_fit import fit_one_epoch
+        from seg_model.deeplabv3_plus.nets.deeplabv3_training import weights_init
+        from seg_model.deeplabv3_plus.utils.callbacks import LossHistory
+        from seg_model.deeplabv3_plus.utils.dataloader import DeeplabDataset, deeplab_dataset_collate
+        from seg_model.deeplabv3_plus.utils.utils_fit import fit_one_epoch
 
         model_path  = "deeplabv3_plus/weight/deeplab_mobilenetv2.pth" # deeplabv3_plus
         input_shape         = [512, 512] 
         backbone    = "mobilenet"
 
     elif modelType == ModelType.PSPNET:
-        from pspnet.nets.pspnet_training import weights_init
-        from pspnet.utils.callbacks import LossHistory
-        from pspnet.utils.utils_fit import fit_one_epoch
-        from pspnet.utils.dataloader import PSPnetDataset, pspnet_dataset_collate
+        from seg_model.pspnet.nets.pspnet_training import weights_init
+        from seg_model.pspnet.utils.callbacks import LossHistory
+        from seg_model.pspnet.utils.utils_fit import fit_one_epoch
+        from seg_model.pspnet.utils.dataloader import PSPnetDataset, pspnet_dataset_collate
 
         model_path  = "pspnet/weight/pspnet_mobilenetv2.pth" # pspnet
         input_shape         = [473, 473] 
@@ -160,53 +160,53 @@ if __name__ == "__main__":
         aux_branch      = False             # pspnet
 
     elif modelType == ModelType.UNET:
-        from unet.nets.unet_training import weights_init
-        from unet.utils.callbacks import LossHistory
-        from unet.utils.dataloader import UnetDataset, unet_dataset_collate
-        from unet.utils.utils_fit import fit_one_epoch
+        from seg_model.unet.nets.unet_training import weights_init
+        from seg_model.unet.utils.callbacks import LossHistory
+        from seg_model.unet.utils.dataloader import UnetDataset, unet_dataset_collate
+        from seg_model.unet.utils.utils_fit import fit_one_epoch
 
         model_path  = "unet/weight/unet_vgg_voc.pth" # unet
         input_shape         = [512, 512] 
         backbone    = "vgg"   
 
     elif modelType == ModelType.SEGNET:
-        # from segnet.nets.segresnet import SegResNet as Model
-        from segnet.nets.segnet_training import weights_init
-        from segnet.utils.callbacks import LossHistory
-        from segnet.utils.dataloader import SegNetDataset, segnet_dataset_collate
-        from segnet.utils.utils_fit import fit_one_epoch
+        # from seg_model.segnet.nets.segresnet import SegResNet as Model
+        from seg_model.segnet.nets.segnet_training import weights_init
+        from seg_model.segnet.utils.callbacks import LossHistory
+        from seg_model.segnet.utils.dataloader import SegNetDataset, segnet_dataset_collate
+        from seg_model.segnet.utils.utils_fit import fit_one_epoch
         model_path = ""
         input_shape         = [512, 512] 
 
     elif modelType == ModelType.FCN:
-        from fcn.nets.fcn_training import weights_init
-        from fcn.utils.callbacks import LossHistory
-        from fcn.utils.dataloader import FCNDataset, fcn_dataset_collate
-        from fcn.utils.utils_fit import fit_one_epoch
+        from seg_model.fcn.nets.fcn_training import weights_init
+        from seg_model.fcn.utils.callbacks import LossHistory
+        from seg_model.fcn.utils.dataloader import FCNDataset, fcn_dataset_collate
+        from seg_model.fcn.utils.utils_fit import fit_one_epoch
         model_path = ""
         input_shape         = [512, 512] 
 
     elif modelType == ModelType.DeconvNet: 
-        from deconvnet.nets.deconvnet_training import weights_init
-        from deconvnet.utils.callbacks import LossHistory
-        from deconvnet.utils.dataloader import DeconvNetDataset, deconvnet_dataset_collate
-        from deconvnet.utils.utils_fit import fit_one_epoch
+        from seg_model.deconvnet.nets.deconvnet_training import weights_init
+        from seg_model.deconvnet.utils.callbacks import LossHistory
+        from seg_model.deconvnet.utils.dataloader import DeconvNetDataset, deconvnet_dataset_collate
+        from seg_model.deconvnet.utils.utils_fit import fit_one_epoch
         model_path = ""
         input_shape         = [512, 512] 
 
     elif modelType == ModelType.FPN: 
-        from fpn.nets.fpn_training import weights_init
-        from fpn.utils.callbacks import LossHistory
-        from fpn.utils.dataloader import FPNDataset, fpn_dataset_collate
-        from fpn.utils.utils_fit import fit_one_epoch
+        from seg_model.fpn.nets.fpn_training import weights_init
+        from seg_model.fpn.utils.callbacks import LossHistory
+        from seg_model.fpn.utils.dataloader import FPNDataset, fpn_dataset_collate
+        from seg_model.fpn.utils.utils_fit import fit_one_epoch
         model_path = ""
         input_shape         = [512, 512] 
 
     elif modelType == ModelType.DEEPLABV3:
-        from deeplabv3.nets.deeplabv3_training import weights_init
-        from deeplabv3.utils.callbacks import LossHistory
-        from deeplabv3.utils.dataloader import DeeplabDataset, deeplab_dataset_collate
-        from deeplabv3.utils.utils_fit import fit_one_epoch
+        from seg_model.deeplabv3.nets.deeplabv3_training import weights_init
+        from seg_model.deeplabv3.utils.callbacks import LossHistory
+        from seg_model.deeplabv3.utils.dataloader import DeeplabDataset, deeplab_dataset_collate
+        from seg_model.deeplabv3.utils.utils_fit import fit_one_epoch
         model_path = ""
         input_shape         = [512, 512] 
     #---------------------------------------------------------#

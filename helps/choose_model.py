@@ -10,7 +10,7 @@ class ModelType:
     
 
 def check_model(o):
-    str__ = str(o).split(".")[0].lower()
+    str__ = str(o).split(".")[1].lower()
     if "deeplabv3_plus" in str__: 
         return ModelType.DEEPLABV3_PLUS
     elif "deeplabv3" in str__: 
