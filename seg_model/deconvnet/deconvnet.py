@@ -28,7 +28,7 @@ class DeconvNet(object):
 
         #   所需要区分的类的个数+1
         #-------------------------------------------------------------------#
-        "model_path"        : 'logs/DeconvNet/ep050-loss0.015-val_loss0.033.pth',
+        "model_path"        : 'logs/DeconvNet/ep062-loss0.022-val_loss0.034.pth',
         #--------------------------------#
         #   所使用的的主干网络：vgg、resnet50   
         #--------------------------------#
