@@ -60,11 +60,11 @@ class Albumentations:
         except Exception as e:
             LOGGER.info(colorstr('albumentations: ') + f'{e}')
 
-    def __call__(self, im, mask, p=1.0):
+    def __call__(self, im, labels, p=1.0):
         if self.transform and random.random() < p:
             # new = self.transform(image=im, bboxes=labels[:, 1:], class_labels=labels[:, 0])  # transformed
             # new = self.transform(image=im, bboxes=labels[:, :-1], class_labels=labels[:, -1])  # transformed
-            new = self.transform(image=im, mask=mask)  # transformed
+            new = self.transform(image=im, mask=labels)  # transformed
             im, labels = new['image'], new['mask']
         return im, labels
 
