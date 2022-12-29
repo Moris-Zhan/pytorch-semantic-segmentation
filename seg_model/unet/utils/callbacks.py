@@ -5,7 +5,7 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from tensorboardX import SummaryWriter
-from torchsummary import summary
+from torchinfo import summary
 import io
 from contextlib import redirect_stdout
 import threading
@@ -27,6 +27,18 @@ class LossHistory():
         self.writer = SummaryWriter(log_dir=os.path.join(self.log_dir, "run_" + str(self.time_str)))        
         self.freeze = False
 
+        # rndm_input = torch.autograd.Variable(torch.rand(1, 3, 600, 600), requires_grad = False).cpu()
+        # self.writer.add_graph(model, rndm_input)
+
+        # print("tensroboard model summary finished")
+
+        # f = io.StringIO()
+        # with redirect_stdout(f):
+        #     summary(model, (3, 600, 600), device="cpu")
+        # lines = f.getvalue()
+        # with open(os.path.join(self.log_dir, "summary.txt") ,"w") as f:
+        #     [f.write(line) for line in lines]
+
         # write model summary
         x = threading.Thread(target=self.write_summary, args=([deepcopy(model.module).cpu()]))
         x.start() 
@@ -43,14 +55,14 @@ class LossHistory():
     
     def write_summary(self, cpu_model):
         print("write model summary ready")
-        rndm_input = torch.autograd.Variable(torch.rand(1, 3, 600, 600), requires_grad = False).cpu()
+        rndm_input = torch.autograd.Variable(torch.rand(1, 3, 512, 512), requires_grad = False).cpu()
         self.writer.add_graph(cpu_model, rndm_input)
 
         print("tensroboard model summary finished")
 
         f = io.StringIO()
         with redirect_stdout(f):
-            summary(cpu_model, (3, 600, 600), device="cpu")
+            summary(cpu_model, input_size=(1, 3, 512, 512), device="cpu")
         lines = f.getvalue()
         with open(os.path.join(self.log_dir, "summary.txt") ,"w") as f:
             [f.write(line) for line in lines]
