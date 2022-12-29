@@ -8,14 +8,14 @@ from torch.utils.data import DataLoader
 from helps.choose_data import DataType, get_data
 from helps.choose_model import ModelType, check_model
 
-# from seg_model.deeplabv3_plus.nets.deeplabv3_plus import DeepLab as Model
+from seg_model.deeplabv3_plus.nets.deeplabv3_plus import DeepLab as Model
 # from seg_model.deeplabv3.nets.deeplabv3 import DeepLab as Model
 # from seg_model.pspnet.nets.pspnet import PSPNet as Model
 # from seg_model.unet.nets.unet import Unet  as Model
 # from seg_model.segnet.nets.segnet import SegNet as Model
 # from seg_model.fcn.nets.fcn import FCN as Model
 # from seg_model.deconvnet.nets.deconvnet import DeconvNet as Model
-from seg_model.fpn.nets.fpn import FPN as Model  
+# from seg_model.fpn.nets.fpn import FPN as Model  
         
 
 '''
@@ -188,7 +188,7 @@ if __name__ == "__main__":
     #   占用的顯存較大，網絡所有的參數都會發生改變
     #----------------------------------------------------#
     UnFreeze_Epoch  = 100
-    Unfreeze_batch_size = int(4/1)
+    Unfreeze_batch_size = int(4/2)
     Unfreeze_lr         = 5e-5    
     #---------------------------------------------------------------------# 
     #   建議選項：
