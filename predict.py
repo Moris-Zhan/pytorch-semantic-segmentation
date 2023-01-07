@@ -7,11 +7,11 @@ import os
 import cv2
 import numpy as np
 from PIL import Image
-from helps.choose_data import DataType, get_data
+from utils.choose_data import DataType, get_data
 
-from seg_model.deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
+# from seg_model.deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
 # from seg_model.deeplabv3.deeplabv3 import DeepLabv3 as Model
-# from seg_model.pspnet.pspnet import PSPNet as Model
+from seg_model.pspnet.pspnet import PSPNet as Model
 # from seg_model.unet.unet import Unet as Model
 # from seg_model.segnet.segnet import SegNet as Model
 # from seg_model.fcn.fcn import FCN as Model
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     #   如果想要修改对应种类的颜色，到generate函数里修改self.colors即可
     #-------------------------------------------------------------------------#
     VOCdevkit_path, num_classes, _, name_classes = get_data(root_path, DataType.LANE)
-    model = Model()
+    model = Model(num_classes=num_classes)
     #----------------------------------------------------------------------------------------------------------#
     #   mode用于指定测试的模式：
     #   'predict'表示单张图片预测，如果想对预测过程进行修改，如保存图片，截取对象等，可以先看下方详细的注释

@@ -2,17 +2,17 @@ import os
 
 from PIL import Image
 from tqdm import tqdm
-from helps.choose_data import DataType, get_data
-from helps.choose_model import ModelType, check_model
+from utils.choose_data import DataType, get_data
+from utils.choose_model import ModelType, check_model
 
-from seg_model.deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
+# from seg_model.deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
 # from seg_model.deeplabv3.deeplabv3 import DeepLabv3 as Model
 # from seg_model.pspnet.pspnet import PSPNet as Model
 # from seg_model.unet.unet import Unet as Model
 # from seg_model.segnet.segnet import SegNet as Model
 # from seg_model.fcn.fcn import FCN as Model
 # from seg_model.deconvnet.deconvnet import DeconvNet as Model
-# from seg_model.fpn.fpn import FPN as Model    
+from seg_model.fpn.fpn import FPN as Model    
 
 '''
 进行指标评估需要注意以下几点：
