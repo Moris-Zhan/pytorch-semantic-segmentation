@@ -38,22 +38,24 @@ def get_opts(Train=True):
     with open(os.path.join(opt.data_path, "Segmentation//val.txt"),"r") as f:
         opt.val_lines = f.readlines()
     opt.num_train   = len(opt.train_lines)
-    opt.num_val     = len(opt.val_lines) 
-    #############################################################################################
-    #   phi             所使用到的yolov7的版本，本仓库一共提供两个：
-    #                   l : 对应yolov7
-    #                   x : 对应yolov7_x
+    opt.num_val     = len(opt.val_lines)     
     #############################################################################################    
-    opt.net = 'unet'     # [unet, pspnet, segnet, fcn, deconvnet, fpn, deeplab_v3, deeplab_v3_plus, segformer]
-    opt.model_path      = 'model_data/unet_vgg_voc.pth' #coco
-    opt.backbone    = "vgg"
-    opt.input_shape     = [512, 512]  
+    opt.net = 'pspnet'     # [unet, pspnet, segnet, fcn, deconvnet, fpn, deeplab_v3, deeplab_v3_plus, segformer]
+    opt.model_path  = "model_data/pspnet_mobilenetv2.pth" # pspnet
+    opt.input_shape         = [473, 473] 
+    opt.backbone    = "mobilenet"
     opt.pretrained      = True
     opt.IM_SHAPE = (opt.input_shape[0], opt.input_shape[1], 3)
+    #------------------------------------------------------#
+    #   是否使用輔助分支
+    #   會占用大量顯存
+    #------------------------------------------------------#
+    opt.aux_branch      = False
     #---------------------------------------------------------#
     #   下采樣的倍數8、16 
     #   8下采樣的倍數較小、理論上效果更好，但也要求更大的顯存
     #---------------------------------------------------------#
+    opt.downsample_factor   = 16   
     #------------------------------------------------------------------#
     opt.Cosine_lr           = False
     opt.label_smoothing     = 0

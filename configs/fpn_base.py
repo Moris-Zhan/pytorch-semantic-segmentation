@@ -44,9 +44,8 @@ def get_opts(Train=True):
     #                   l : 对应yolov7
     #                   x : 对应yolov7_x
     #############################################################################################    
-    opt.net = 'unet'     # [unet, pspnet, segnet, fcn, deconvnet, fpn, deeplab_v3, deeplab_v3_plus, segformer]
-    opt.model_path      = 'model_data/unet_vgg_voc.pth' #coco
-    opt.backbone    = "vgg"
+    opt.net = 'fpn'     # [unet, pspnet, segnet, fcn, deconvnet, fpn, deeplab_v3, deeplab_v3_plus, segformer]
+    opt.model_path      = '' #coco
     opt.input_shape     = [512, 512]  
     opt.pretrained      = True
     opt.IM_SHAPE = (opt.input_shape[0], opt.input_shape[1], 3)

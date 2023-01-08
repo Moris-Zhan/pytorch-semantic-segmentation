@@ -26,26 +26,45 @@ def weights_init(net, init_type='normal', init_gain = 0.02):
 
 def get_model(opt, pred=False):  
     model = init_dt_model(opt, pred)
-    # criterion = init_loss(opt)   
     return model
 
+# [segnet, fcn, deconvnet, fpn, deeplab_v3, segformer]
 def init_dt_model(opt, pred=False):
     if opt.net == 'unet':
         from seg_model.unet.nets.unet import Unet
         model = Unet(num_classes=opt.num_classes, pretrained=opt.pretrained, backbone=opt.backbone)
+    elif opt.net == 'pspnet':
+        from seg_model.pspnet.nets.pspnet import PSPNet
+        model = PSPNet(num_classes=opt.num_classes, backbone=opt.backbone, downsample_factor=opt.downsample_factor, pretrained=opt.pretrained, aux_branch=opt.aux_branch)
+    elif opt.net == 'deeplab_v3':
+        from seg_model.deeplabv3.nets.deeplabv3 import DeepLab
+        model = DeepLab(num_classes=opt.num_classes, pretrained=opt.pretrained)
+    elif opt.net == 'deeplab_v3_plus':
+        from seg_model.deeplabv3_plus.nets.deeplabv3_plus import DeepLab
+        model = DeepLab(num_classes=opt.num_classes, backbone=opt.backbone, pretrained=opt.pretrained, downsample_factor=opt.downsample_factor)
+    elif opt.net == 'segnet':
+        from seg_model.segnet.nets.segnet import SegNet
+        model = SegNet(num_classes=opt.num_classes, pretrained=opt.pretrained)
+    elif opt.net == 'fcn':
+        from seg_model.fcn.nets.fcn import FCN
+        model = FCN(num_classes=opt.num_classes, pretrained=opt.pretrained)
+    elif opt.net == 'deconvnet':
+        from seg_model.deconvnet.nets.deconvnet import DeconvNet
+        model = DeconvNet(num_classes=opt.num_classes, pretrained=opt.pretrained)
+    elif opt.net == 'fpn':
+        from seg_model.fpn.nets.fpn import FPN 
+        model = FPN(num_classes=opt.num_classes, pretrained=opt.pretrained)
+    elif opt.net == 'segformer':
+        from seg_model.segformer.nets.segformer import SegFormer 
+        model = SegFormer(num_classes=opt.num_classes, phi=opt.phi,pretrained=opt.pretrained)
 
     return model    
 
-# def init_loss(opt):
-#     if opt.net == 'unet':
-#         from seg_model.unet.nets.unet_training import unet_training
-#         criterion       = MultiboxLoss(opt.num_classes, neg_pos_ratio=3.0)
-    
-#     return criterion
 
 def get_optimizer(model, opt, optimizer_type):    
     optimizer = {
             'adam'  : optim.Adam(model.parameters(), opt.Init_lr_fit, betas = (opt.momentum, 0.999), weight_decay = opt.weight_decay),
+            'adamw' : optim.AdamW(model.parameters(), opt.Init_lr_fit, betas = (opt.momentum, 0.999), weight_decay = opt.weight_decay),
             'sgd'   : optim.SGD(model.parameters(), opt.Init_lr_fit, momentum = opt.momentum, nesterov=True, weight_decay = opt.weight_decay)
         }[optimizer_type]   
     return optimizer
@@ -56,8 +75,47 @@ def generate_loader(opt):
         from seg_model.unet.utils.dataloader import UnetDataset, unet_dataset_collate        
         train_dataset   = UnetDataset(opt.train_lines, opt.input_shape, opt.num_classes, True, opt.data_path)
         val_dataset     = UnetDataset(opt.val_lines, opt.input_shape, opt.num_classes, False, opt.data_path)
-        dataset_collate = unet_dataset_collate  
-   
+        dataset_collate = unet_dataset_collate 
+    elif opt.net == 'pspnet':
+        from seg_model.pspnet.utils.dataloader import PSPnetDataset, pspnet_dataset_collate
+        train_dataset   = PSPnetDataset(opt.train_lines, opt.input_shape, opt.num_classes, True, opt.data_path)
+        val_dataset     = PSPnetDataset(opt.val_lines, opt.input_shape, opt.num_classes, False, opt.data_path)
+        dataset_collate = pspnet_dataset_collate
+    elif opt.net == 'deeplab_v3':
+        from seg_model.deeplabv3.utils.dataloader import DeeplabDataset, deeplab_dataset_collate
+        train_dataset   = DeeplabDataset(opt.train_lines, opt.input_shape, opt.num_classes, True, opt.data_path)
+        val_dataset     = DeeplabDataset(opt.val_lines, opt.input_shape, opt.num_classes, False, opt.data_path)
+        dataset_collate = deeplab_dataset_collate
+    elif opt.net == 'deeplab_v3_plus':
+        from seg_model.deeplabv3_plus.utils.dataloader import DeeplabDataset, deeplab_dataset_collate
+        train_dataset   = DeeplabDataset(opt.train_lines, opt.input_shape, opt.num_classes, True, opt.data_path)
+        val_dataset     = DeeplabDataset(opt.val_lines, opt.input_shape, opt.num_classes, False, opt.data_path)
+        dataset_collate = deeplab_dataset_collate
+    elif opt.net == 'segnet':
+        from seg_model.segnet.utils.dataloader import SegNetDataset, segnet_dataset_collate
+        train_dataset   = SegNetDataset(opt.train_lines, opt.input_shape, opt.num_classes, True, opt.data_path)
+        val_dataset     = SegNetDataset(opt.val_lines, opt.input_shape, opt.num_classes, False, opt.data_path)
+        dataset_collate = segnet_dataset_collate
+    elif opt.net == 'fcn':
+        from seg_model.fcn.utils.dataloader import FCNDataset, fcn_dataset_collate
+        train_dataset   = FCNDataset(opt.train_lines, opt.input_shape, opt.num_classes, True, opt.data_path)
+        val_dataset     = FCNDataset(opt.val_lines, opt.input_shape, opt.num_classes, False, opt.data_path)
+        dataset_collate = fcn_dataset_collate   
+    elif opt.net == 'deconvnet':
+        from seg_model.deconvnet.utils.dataloader import DeconvNetDataset, deconvnet_dataset_collate
+        train_dataset   = DeconvNetDataset(opt.train_lines, opt.input_shape, opt.num_classes, True, opt.data_path)
+        val_dataset     = DeconvNetDataset(opt.val_lines, opt.input_shape, opt.num_classes, False, opt.data_path)
+        dataset_collate = deconvnet_dataset_collate
+    elif opt.net == 'fpn':
+        from seg_model.fpn.utils.dataloader import FPNDataset, fpn_dataset_collate
+        train_dataset   = FPNDataset(opt.train_lines, opt.input_shape, opt.num_classes, True, opt.data_path)
+        val_dataset     = FPNDataset(opt.val_lines, opt.input_shape, opt.num_classes, False, opt.data_path)
+        dataset_collate = fpn_dataset_collate
+    elif opt.net == 'segformer':
+        from seg_model.segformer.utils.dataloader import SegmentationDataset, seg_dataset_collate
+        train_dataset   = SegmentationDataset(opt.train_lines, opt.input_shape, opt.num_classes, True, opt.data_path)
+        val_dataset     = SegmentationDataset(opt.val_lines, opt.input_shape, opt.num_classes, False, opt.data_path)
+        dataset_collate = seg_dataset_collate
 
     batch_size      = opt.batch_size
     if opt.distributed:

@@ -14,14 +14,7 @@ import torch.backends.cudnn as cudnn
 # import models, datasets, utils
 import models
 
-import io
-from contextlib import redirect_stdout
-from torchinfo import summary
 from pynvml import *
-from functools import partial
-import importlib
-import threading
-from tqdm import tqdm
 from utils.helpers import *
 from models.script import get_fit_func
 import torch.distributed as dist
@@ -29,7 +22,7 @@ from utils.utils_info import write_info
 
 
 class Trainer:
-    def __init__(self, opt):        
+    def __init__(self, opt):          
         #------------------------------------------------------#
         #   设置用到的显卡
         #------------------------------------------------------#
@@ -181,11 +174,12 @@ class Trainer:
                 #-----------------------------------------------------------------------------------------#
                 #   判断当前batch_size，自适应调整学习率
                 #-------------------------------------------------------------------#
-                nbs             = 64
-                lr_limit_max    = 1e-3 if self.opt.optimizer_type == 'adam' else 5e-2
-                lr_limit_min    = 3e-4 if self.opt.optimizer_type == 'adam' else 5e-5
+                nbs             = 16
+                lr_limit_max    = 1e-4 if self.opt.optimizer_type in ['adam', 'adamw'] else 5e-2
+                lr_limit_min    = 3e-5 if self.opt.optimizer_type in ['adam', 'adamw'] else 5e-4
                 Init_lr_fit     = min(max(batch_size / nbs * self.opt.Init_lr, lr_limit_min), lr_limit_max)
                 Min_lr_fit      = min(max(batch_size / nbs * self.opt.Min_lr, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
+
                 #---------------------------------------#
                 #   获得学习率下降的公式
                 #---------------------------------------#
@@ -208,17 +202,6 @@ class Trainer:
             if (self.opt.UnFreeze_flag and self.opt.Early_Stopping and self.loss_history.stopping): break
 
             set_optimizer_lr(self.optimizer, self.lr_scheduler_func, epoch)
-
-            # self.fit_one_epoch(self.model_train, self.model, self.loss_history, self.optimizer, epoch, self.epoch_step, self.epoch_step_val, 
-            #                 self.train_loader, self.test_loader, self.opt)
-
-            #  fit_one_epoch(model_train, model, loss_history, eval_callback, optimizer, epoch, 
-            #         epoch_step, epoch_step_val, gen, gen_val, UnFreeze_Epoch, Cuda, 
-            #         dice_loss, focal_loss, cls_weights, num_classes, fp16, scaler, save_period, save_dir, local_rank)
-
-# model_train, model, loss_history, optimizer, epoch, epoch_step, epoch_step_val, 
-# gen, gen_val, 
-#             dice_loss, focal_loss, cls_weights, num_classes, opt
 
             self.fit_one_epoch(self.model_train, self.model, self.loss_history, self.optimizer, epoch, \
                         self.epoch_step, self.epoch_step_val, self.train_loader, self.test_loader, \

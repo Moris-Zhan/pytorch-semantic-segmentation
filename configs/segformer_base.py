@@ -40,16 +40,16 @@ def get_opts(Train=True):
     opt.num_train   = len(opt.train_lines)
     opt.num_val     = len(opt.val_lines) 
     #############################################################################################
-    #   phi             所使用到的yolov7的版本，本仓库一共提供两个：
-    #                   l : 对应yolov7
-    #                   x : 对应yolov7_x
+    #   phi             
+    #   所使用的的主干网络：
+    #   b0、b1、b2、b3、b4、b5
     #############################################################################################    
-    opt.net = 'unet'     # [unet, pspnet, segnet, fcn, deconvnet, fpn, deeplab_v3, deeplab_v3_plus, segformer]
-    opt.model_path      = 'model_data/unet_vgg_voc.pth' #coco
-    opt.backbone    = "vgg"
+    opt.net = 'segformer'     # [unet, pspnet, segnet, fcn, deconvnet, fpn, deeplab_v3, deeplab_v3_plus, segformer]
     opt.input_shape     = [512, 512]  
+    opt.phi             = "b1"
+    opt.model_path      = 'model_data/segformer_%s_weights_voc.pth'% opt.phi #coco
     opt.pretrained      = True
-    opt.IM_SHAPE = (opt.input_shape[0], opt.input_shape[1], 3)
+    opt.IM_SHAPE = (opt.input_shape[0], opt.input_shape[1], 3)      
     #---------------------------------------------------------#
     #   下采樣的倍數8、16 
     #   8下采樣的倍數較小、理論上效果更好，但也要求更大的顯存
@@ -101,16 +101,16 @@ def get_opts(Train=True):
     #   Init_lr         模型的最大学习率
     #   Min_lr          模型的最小学习率，默认为最大学习率的0.01
     #------------------------------------------------------------------#
-    opt.Init_lr             = 1e-2
+    opt.Init_lr             = 1e-4
     opt.Min_lr              = opt.Init_lr * 0.01
     #------------------------------------------------------------------#
     #   lr_decay_type   使用到的学习率下降方式，可选的有step、cos
     #------------------------------------------------------------------#
     opt.lr_decay_type       = "cos"
-    opt.weight_decay    = 5e-4
+    opt.weight_decay    = 1e-2
     opt.gamma           = 0.94
     opt.optimizer_type      = "sgd"
-    opt.momentum            = 0.937
+    opt.momentum            = 0.9
     #------------------------------------------------------#
     #   是否提早結束。
     #------------------------------------------------------#

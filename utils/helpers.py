@@ -103,7 +103,7 @@ def is_parallel(model):
 #     #   數據集路徑
 #     #   訓練自己的數據集必須要修改的
 #     #------------------------------#  
-#     map_dict = { "ice":'ICME2022', "coco":'COCO',
+#     map_dict = { "icme":'ICME2022', "coco":'COCO',
 #                  "voc":'VOCdevkit', "lane":"LANEdevkit", "cityscape":'Cityscapes'}
 #     return os.path.join(root_path, map_dict[dataType]) 
 

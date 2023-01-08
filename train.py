@@ -11,17 +11,21 @@ from trainer import Trainer
 # os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
 
+# [segnet, fcn, deconvnet, fpn, deeplab_v3, segformer]
 def main():    
     # Load options
     parser = argparse.ArgumentParser(description='Attribute Learner')
-    parser.add_argument('--config', type=str, default="configs.unet_base" 
-    # parser.add_argument('--config', type=str, default="configs.retina_base" 
-    # parser.add_argument('--config', type=str, default="configs.centernet_base" 
-    # parser.add_argument('--config', type=str, default="configs.fasterRcnn_base" 
-    # parser.add_argument('--config', type=str, default="configs.yolov3_base" 
-    # parser.add_argument('--config', type=str, default="configs.yolov4_base" 
-    # parser.add_argument('--config', type=str, default="configs.yolov5_base" 
-    # parser.add_argument('--config', type=str, default="configs.yolox_base" 
+    # parser.add_argument('--config', type=str, default="configs.segformer_base" 
+    # parser.add_argument('--config', type=str, default="configs.unet_base" 
+    # parser.add_argument('--config', type=str, default="configs.pspnet_base" 
+    # parser.add_argument('--config', type=str, default="configs.deeplab_v3_base" 
+    # parser.add_argument('--config', type=str, default="configs.deeplab_v3_plus_base" 
+
+    parser.add_argument('--config', type=str, default="configs.segnet_base" 
+    # parser.add_argument('--config', type=str, default="configs.fcn_base" 
+    # parser.add_argument('--config', type=str, default="configs.deconv_base" 
+    # parser.add_argument('--config', type=str, default="configs.fpn_base" 
+
                         ,help = 'Path to config .opt file. Leave blank if loading from opts.py')
     parser.add_argument("--local_rank", type=int, help="local_rank")    
     parser.add_argument("--distributed", type=bool, default=False, help="distributed")                       
