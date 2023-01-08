@@ -3,7 +3,7 @@ import torch.nn as nn
 from torchvision import models
 from seg_model.segnet.utils.utils import set_trainable
 from seg_model.segnet.nets.vgg import VGG16_BN
-
+from seg_model.segnet.nets.maxUnpool2d import MaxUnpool2d
 
 class SegNet(nn.Module):
     def __init__(self, num_classes, in_channels=3, pretrained=True, **_):
@@ -46,6 +46,7 @@ class SegNet(nn.Module):
                 nn.Conv2d(64, num_classes, kernel_size=3, stride=1, padding=1)
         )
         self.unpool = nn.MaxUnpool2d(kernel_size=2, stride=2)
+        # self.unpool = MaxUnpool2d(kernel_size=2, stride=2)
 
         self._initialize_weights(self.stage1_decoder, self.stage2_decoder, self.stage3_decoder,
                                     self.stage4_decoder, self.stage5_decoder)
