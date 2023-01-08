@@ -163,3 +163,4 @@ python predict.py
 - cityscapes: https://www.cityscapes-dataset.com/dataset-overview/#features
 - VOC2007: https://pjreddie.com/media/files/VOC2007_doc.pdf
 - VOC2012: https://pjreddie.com/media/files/VOC2012_doc.pdf
+- Onnx convert reference: https://github.com/WongKinYiu/yolov7/blob/main/export.py
