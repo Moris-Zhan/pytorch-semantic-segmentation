@@ -1,13 +1,13 @@
 # ImageSegmentation
 My Frame work for SemanticSegmentation
 ## Overview
-I organizize the object detection algorithms proposed in recent years, and focused on **`Cityscapes`, `COCO` and `Pascal VOC` Dataset.
+I organizize the object detection algorithms proposed in recent years, and focused on **`Cityscapes`, `COCO` and `Pascal VOC` Dataset.**
 This frame work also include **`EarlyStopping mechanism`**.
 
 
 ## Datasets:
 
-I used 3 different datases: **`Cityscapes`, `COCO`, `Pascal VOC`** . Statistics of datasets I used for experiments is shown below
+I used 5 different datases: **`Cityscapes`, `COCO`, `Pascal VOC`, `ICME2022` and `LANEdevkit`** . Statistics of datasets I used for experiments is shown below
 
 - **VOC**:
   Download the voc images and annotations from [VOC2007](http://host.robots.ox.ac.uk/pascal/VOC/voc2007) or [VOC2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012). Make sure to put the files as the following structure:
@@ -101,6 +101,7 @@ The Cityscapes Dataset focuses on semantic understanding of urban street scenes.
 - **PSPNet**
 - **DeepLabV3**
 - **DeepLabv3_plus**
+- **Segformer**
 
 ## Prerequisites
 * **Windows 10**
@@ -120,7 +121,7 @@ pip install -r requirements.txt -f https://download.pytorch.org/whl/torch_stable
 
 ## Usage
 ### 1. Prepare the dataset
-* **Create your own `dataset_annotation.py` then create `Segmentation/train.txt` , `Segmentation/val.txt` let data to load.** 
+* **Create your own `annotation.{dataset}.py` then create `Segmentation/train.txt` , `Segmentation/val.txt` let data to load.** 
 * **Prepare pretrain download weight to `model_data` .** 
 * **Add new data in `helps/choose_data.py`. **
 
