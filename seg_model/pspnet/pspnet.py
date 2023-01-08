@@ -27,7 +27,7 @@ class PSPNet(object):
 
         #   所需要区分的类的个数+1
         #-------------------------------------------------------------------#
-        "model_path"        : 'logs/PSPNet/ep100-loss0.006-val_loss0.010.pth',
+        "model_path"        : 'work_dirs/lane_pspnet/best_epoch_weights.pth',
         "num_classes"       : 11 + 1,    
 
         # "model_path"        : 'logs(ICME)/ep020-loss5.090-val_loss3.802.pth',

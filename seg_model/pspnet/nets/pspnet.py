@@ -123,7 +123,8 @@ class _PSPModule(nn.Module):
         )
 
     def _make_stages(self, in_channels, out_channels, bin_sz, norm_layer):
-        prior = nn.AdaptiveAvgPool2d(output_size=bin_sz)
+        # prior = nn.AdaptiveAvgPool2d(output_size=bin_sz)
+        prior = nn.AvgPool2d(kernel_size=(3, 3), stride=(3, 3))
         conv = nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False)
         bn = norm_layer(out_channels)
         relu = nn.ReLU(inplace=True)
