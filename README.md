@@ -151,6 +151,12 @@ python get_miou.py
 python predict.py
 ```
 
+### 6. export
+* Can switch your saved model export to ONNX format
+```python
+python export.py --config "configs.yolact_base"
+```
+
 ## Reference
 - U-Net :  https://github.com/bubbliiiing/unet-pytorch
 - SegNet : https://github.com/yassouali/pytorch-segmentation/blob/4c51ae43c791a37b0fb80c536b6614ff971c74e8/models/segnet.py
