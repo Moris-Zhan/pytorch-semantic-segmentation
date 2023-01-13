@@ -166,7 +166,9 @@ def get_opts(Train=True):
     if Train:
         opt.writer = SummaryWriter(log_dir=os.path.join(opt.out_path, "tensorboard"))
         init_logging(opt.local_rank, opt.out_path)    
- 
+    else:
+        from seg_model.deeplabv3.deeplabv3 import DeepLabv3
+        opt.Model_Pred = DeepLabv3
     return opt
 
 if __name__ == "__main__":    

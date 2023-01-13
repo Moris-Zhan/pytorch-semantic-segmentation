@@ -2,68 +2,39 @@ import os
 
 from PIL import Image
 from tqdm import tqdm
-from utils.choose_data import DataType, get_data
-from utils.choose_model import ModelType, check_model
-
-# from seg_model.deeplabv3_plus.deeplabv3_plus import DeeplabV3 as Model
-# from seg_model.deeplabv3.deeplabv3 import DeepLabv3 as Model
-# from seg_model.pspnet.pspnet import PSPNet as Model
-# from seg_model.unet.unet import Unet as Model
-# from seg_model.segnet.segnet import SegNet as Model
-# from seg_model.fcn.fcn import FCN as Model
-# from seg_model.deconvnet.deconvnet import DeconvNet as Model
-from seg_model.fpn.fpn import FPN as Model    
-
-'''
-进行指标评估需要注意以下几点：
-1、该文件生成的图为灰度图，因为值比较小，按照PNG形式的图看是没有显示效果的，所以看到近似全黑的图是正常的。
-2、该文件计算的是验证集的miou，当前该库将测试集当作验证集使用，不单独划分测试集
-'''
-if __name__ == "__main__":
-    #------------------------------#
-    #   分类个数+1、如2+1
-    #   区分的种类，和json_to_dataset里面的一样
-    #   指向VOC数据集所在的文件夹
-    root_path = "D://WorkSpace//JupyterWorkSpace//DataSet"
-    VOCdevkit_path, num_classes, _, name_classes = get_data(root_path, DataType.LANE)
-    #------------------------------#
-    modelType = check_model(Model.__module__)
-    if modelType == ModelType.DEEPLABV3_PLUS: 
-        from seg_model.deeplabv3_plus.utils.utils_metrics import compute_mIoU, show_results
-
-    elif modelType == ModelType.DEEPLABV3: 
-        from seg_model.deeplabv3.utils.utils_metrics import compute_mIoU, show_results
-
-    elif modelType == ModelType.PSPNET: 
-        from seg_model.pspnet.utils.utils_metrics import compute_mIoU, show_results
-
-    elif modelType == ModelType.UNET: 
-        from seg_model.unet.utils.utils_metrics import compute_mIoU, show_results
-
-    elif modelType == ModelType.SEGNET: 
-        from seg_model.segnet.utils.utils_metrics import compute_mIoU, show_results
-
-    elif modelType == ModelType.FCN: 
-        from seg_model.fcn.utils.utils_metrics import compute_mIoU, show_results
-
-    elif modelType == ModelType.DeconvNet: 
-        from seg_model.deconvnet.utils.utils_metrics import compute_mIoU, show_results
-
-    elif modelType == ModelType.FPN: 
-        from seg_model.fpn.utils.utils_metrics import compute_mIoU, show_results
-  
+from utils.helpers import get_data
     
+
+import argparse, os
+import importlib
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Attribute Learner')
+    parser.add_argument('--config', type=str, default="configs.pspnet_base" 
+                        ,help = 'Path to config .opt file. Leave blank if loading from opts.py')
+
+    parser.add_argument('--gt_dir', type=str, default="test/mask_annotations/")
+    parser.add_argument('--classes_path', type=str, default='model_data/coco_classes.txt')
+    parser.add_argument("--miou_mode", type=int, default=0 , help="miou mode")  
+
+    conf = parser.parse_args() 
+    opt = importlib.import_module(conf.config).get_opts(Train=False)
+    for key, value in vars(conf).items():     
+        setattr(opt, key, value)
+    
+    d=vars(opt)
+
+
+    VOCdevkit_path, num_classes, _, name_classes = get_data(opt.data_root, opt.exp_name)
+    #------------------------------#
+    compute_mIoU = importlib.import_module("seg_model.%s.utils.utils_metrics"%opt.net).compute_mIoU
+    show_results = importlib.import_module("seg_model.%s.utils.utils_metrics"%opt.net).show_results      
     #---------------------------------------------------------------------------#
-    #   miou_mode用于指定该文件运行时计算的内容
-    #   miou_mode为0代表整个miou计算流程，包括获得预测结果、计算miou。
-    #   miou_mode为1代表仅仅获得预测结果。
-    #   miou_mode为2代表仅仅计算miou。
-    #---------------------------------------------------------------------------#
-    miou_mode       = 0
+    miou_mode       = opt.miou_mode
     #-------------------------------------------------------#        
-    image_ids       = open(os.path.join(VOCdevkit_path, "Segmentation/val.txt"),'r').read().splitlines() 
-    gt_dir          = os.path.join(VOCdevkit_path, "test/mask_annotations/")
-    miou_out_path   = os.path.join("miou_out", Model.__module__)
+    image_ids       = opt.val_lines
+    gt_dir          = os.path.join(VOCdevkit_path, opt.gt_dir)
+    miou_out_path   = os.path.join(opt.out_path, "miou_out")
     pred_dir        = os.path.join(miou_out_path, 'detection-results')
 
     if miou_mode == 0 or miou_mode == 1:
@@ -71,7 +42,7 @@ if __name__ == "__main__":
             os.makedirs(pred_dir)
             
         print("Load model.")
-        model = Model(num_classes = num_classes)
+        model = opt.Model_Pred(num_classes=opt.num_classes)
         print("Load model done.")
 
         print("Get predict result.")
@@ -80,7 +51,7 @@ if __name__ == "__main__":
             image       = Image.open(image_path)
             image       = model.get_miou_png(image)
             image_id = os.path.basename(image_id)
-            image.save(os.path.join(pred_dir, image_id + ".png"))
+            image.save(os.path.join(pred_dir, image_id.strip() + ".png"))
             # break
         print("Get predict result done.")
 

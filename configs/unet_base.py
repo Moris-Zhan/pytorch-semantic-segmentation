@@ -14,9 +14,9 @@ def get_opts(Train=True):
     opt = argparse.Namespace()  
 
     #the train data, you need change.
-    # opt.data_root = '/home/leyan/DataSet/'
+    opt.data_root = '/home/leyan/DataSet/'
     # opt.data_root = "/home/zimdytsai/leyan/DataSet"
-    opt.data_root = 'D://WorkSpace//JupyterWorkSpace//DataSet//'
+    # opt.data_root = 'D://WorkSpace//JupyterWorkSpace//DataSet//'
 
 
     opt.out_root = 'work_dirs/'
@@ -45,7 +45,7 @@ def get_opts(Train=True):
     #                   x : 对应yolov7_x
     #############################################################################################    
     opt.net = 'unet'     # [unet, pspnet, segnet, fcn, deconvnet, fpn, deeplab_v3, deeplab_v3_plus, segformer]
-    opt.model_path      = 'model_data/unet_vgg_voc.pth' #coco
+    opt.model_path      = '' #coco
     opt.backbone    = "vgg"
     opt.input_shape     = [512, 512]  
     opt.pretrained      = True
@@ -167,7 +167,9 @@ def get_opts(Train=True):
     if Train:
         opt.writer = SummaryWriter(log_dir=os.path.join(opt.out_path, "tensorboard"))
         init_logging(opt.local_rank, opt.out_path)    
- 
+    else:
+        from seg_model.unet.unet import Unet
+        opt.Model_Pred = Unet
     return opt
 
 if __name__ == "__main__":    
