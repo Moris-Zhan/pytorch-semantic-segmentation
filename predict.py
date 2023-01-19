@@ -12,14 +12,24 @@ import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Attribute Learner')
-    parser.add_argument('--config', type=str, default="configs.pspnet_base" 
+    parser.add_argument('--config', type=str, default="configs.deeplab_v3_plus_base" 
+    # parser.add_argument('--config', type=str, default="configs.fcn_base" 
+
+
+    # parser.add_argument('--config', type=str, default="configs.pspnet_base" 
+    # parser.add_argument('--config', type=str, default="configs.segformer_base" 
+    # parser.add_argument('--config', type=str, default="configs.deeplab_v3_base" 
+    # parser.add_argument('--config', type=str, default="configs.deconv_base" 
+    # parser.add_argument('--config', type=str, default="configs.fpn_base" 
+    # parser.add_argument('--config', type=str, default="configs.segnet_base"
                         ,help = 'Path to config .opt file. Leave blank if loading from opts.py')
     parser.add_argument("--mode", type=str, default="video" , help="predict or video")  
     parser.add_argument("--video_fps", type=float, default=25.0, help="video_fps")  
     parser.add_argument("--test_interval", type=int, default=100, help="test_interval") 
 
     parser.add_argument("--video_path", type=str, 
-                                        default="/home/leyan/DataSet/LANEdevkit/Drive-View-Noon-Driving-Taipei-Taiwan.mp4", 
+                                        # default="LANEdevkit/Drive-View-Noon-Driving-Taipei-Taiwan.mp4", 
+                                        default="LANEdevkit/Drive-View-Kaohsiung-Taiwan.mp4", 
                                         )  
     parser.add_argument("--video_save_path", type=str, 
                                         default="pred_out/coco.mp4", 
@@ -40,10 +50,11 @@ if __name__ == "__main__":
     model = opt.Model_Pred(num_classes=opt.num_classes)   
     mode = opt.mode
     #----------------------------------------------------------------------------------------------------------#
-    video_path      = opt.video_path
-    video_save_path = opt.video_save_path
+    video_path      = os.path.join(opt.data_root, opt.video_path)
     video_fps       = opt.video_fps
     test_interval = opt.test_interval
+    video_save_path = f"pred_out/{opt.net}.mp4"
+    os.makedirs(os.path.dirname(video_save_path), exist_ok=True)
     #----------------------------------------------------------------------------------------------------------#
     dir_origin_path = opt.dir_origin_path
     dir_save_path   = opt.dir_save_path
@@ -72,6 +83,7 @@ if __name__ == "__main__":
 
             frame = cv2.resize(frame, (1280, 720), interpolation = cv2.INTER_AREA)
             # 格式转变，BGRtoRGB
+            # frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
             frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
             # 转变成Image
             frame = Image.fromarray(np.uint8(frame))

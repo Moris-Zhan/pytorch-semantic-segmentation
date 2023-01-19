@@ -9,14 +9,24 @@ from utils.tools import init_logging
 import importlib
 from utils.helpers import get_data 
 
+def reset_lr(Init_lr, Min_lr, optimizer_type, backbone, batch_size):
+    #-------------------------------------------------------------------#
+    #   判断当前batch_size，自适应调整学习率
+    #-------------------------------------------------------------------#
+    nbs             = 16
+    lr_limit_max    = 5e-4 if optimizer_type == 'adam' else 1e-1
+    lr_limit_min    = 3e-4 if optimizer_type == 'adam' else 5e-4
+    Init_lr_fit     = min(max(batch_size / nbs * Init_lr, lr_limit_min), lr_limit_max)
+    Min_lr_fit      = min(max(batch_size / nbs * Min_lr, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
+    return Init_lr_fit, Min_lr_fit
 
 def get_opts(Train=True):
     opt = argparse.Namespace()  
 
     #the train data, you need change.
-    opt.data_root = '/home/leyan/DataSet/'
+    # opt.data_root = '/home/leyan/DataSet/'
     # opt.data_root = "/home/zimdytsai/leyan/DataSet"
-    # opt.data_root = 'D://WorkSpace//JupyterWorkSpace//DataSet//'
+    opt.data_root = 'D://WorkSpace//JupyterWorkSpace//DataSet//'
 
 
     opt.out_root = 'work_dirs/'
@@ -41,7 +51,7 @@ def get_opts(Train=True):
     opt.num_val     = len(opt.val_lines)     
     #############################################################################################    
     opt.net = 'pspnet'     # [unet, pspnet, segnet, fcn, deconvnet, fpn, deeplab_v3, deeplab_v3_plus, segformer]
-    opt.model_path  = "" # pspnet
+    opt.model_path  = "model_data/pspnet_mobilenetv2.pth" # pspnet
     opt.input_shape         = [473, 473] 
     opt.backbone    = "mobilenet"
     opt.pretrained      = True
@@ -50,15 +60,15 @@ def get_opts(Train=True):
     #   是否使用輔助分支
     #   會占用大量顯存
     #------------------------------------------------------#
-    opt.aux_branch      = False
+    opt.aux_branch      = True
     #---------------------------------------------------------#
     #   下采樣的倍數8、16 
     #   8下采樣的倍數較小、理論上效果更好，但也要求更大的顯存
     #---------------------------------------------------------#
-    opt.downsample_factor   = 16   
+    opt.downsample_factor   = 8   
     #------------------------------------------------------------------#
-    opt.Cosine_lr           = False
-    opt.label_smoothing     = 0
+    
+    
     #----------------------------------------------------#
     #   凍結階段訓練參數
     #   此時模型的主幹被凍結了，特征提取網絡不發生改變
@@ -68,7 +78,6 @@ def get_opts(Train=True):
     opt.Init_Epoch          = 0
     opt.Freeze_Epoch    = 50 #50
     opt.Freeze_batch_size   = int(16/2)
-    opt.Freeze_lr           = 1e-3
     #----------------------------------------------------#
     #   解凍階段訓練參數
     #   此時模型的主幹不被凍結了，特征提取網絡會發生改變
@@ -76,7 +85,6 @@ def get_opts(Train=True):
     #----------------------------------------------------#
     opt.UnFreeze_Epoch  = 100 #100
     opt.Unfreeze_batch_size = int(16/1)
-    opt.Unfreeze_lr         = 1e-4
     #------------------------------------------------------#
     #   是否進行凍結訓練，默認先凍結主幹訓練後解凍訓練。
     #------------------------------------------------------#

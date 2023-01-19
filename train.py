@@ -16,12 +16,12 @@ def main():
     # Load options
     parser = argparse.ArgumentParser(description='Attribute Learner')
     # parser.add_argument('--config', type=str, default="configs.segformer_base" 
-    # parser.add_argument('--config', type=str, default="configs.unet_base" 
+    parser.add_argument('--config', type=str, default="configs.unet_base" 
     # parser.add_argument('--config', type=str, default="configs.pspnet_base" 
     # parser.add_argument('--config', type=str, default="configs.deeplab_v3_base" 
     # parser.add_argument('--config', type=str, default="configs.deeplab_v3_plus_base" 
 
-    parser.add_argument('--config', type=str, default="configs.segnet_base" 
+    # parser.add_argument('--config', type=str, default="configs.segnet_base" 
     # parser.add_argument('--config', type=str, default="configs.fcn_base" 
     # parser.add_argument('--config', type=str, default="configs.deconv_base" 
     # parser.add_argument('--config', type=str, default="configs.fpn_base" 
@@ -35,7 +35,6 @@ def main():
     opt = importlib.import_module(conf.config).get_opts()
     for key, value in vars(conf).items():     
         setattr(opt, key, value)
-    
     logging.info('===Options==') 
     d=vars(opt)
 

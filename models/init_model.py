@@ -62,12 +62,35 @@ def init_dt_model(opt, pred=False):
 
 
 def get_optimizer(model, opt, optimizer_type):    
+    if opt.net == 'deeplab_v3_plus':
+        from configs.deeplab_v3_plus_base import reset_lr
+    elif opt.net == 'unet':
+        from configs.unet_base import reset_lr
+    elif opt.net == 'pspnet':
+        from configs.pspnet_base import reset_lr
+    else:
+        def reset_lr(Init_lr, Min_lr, optimizer_type, backbone, batch_size):
+            #-----------------------------------------------------------------------------------------#
+            #   判断当前batch_size，自适应调整学习率
+            #-------------------------------------------------------------------#                
+            nbs             = 16
+            lr_limit_max    = 5e-4 if optimizer_type == 'adam' else 1e-1
+            lr_limit_min    = 3e-4 if optimizer_type == 'adam' else 5e-4
+            if backbone == "xception":
+                lr_limit_max    = 1e-4 if optimizer_type == 'adam' else 1e-1
+                lr_limit_min    = 1e-4 if optimizer_type == 'adam' else 5e-4
+            Init_lr_fit     = min(max(batch_size / nbs * Init_lr, lr_limit_min), lr_limit_max)
+            Min_lr_fit      = min(max(batch_size / nbs * Min_lr, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
+            return Init_lr_fit, Min_lr_fit
+            
+    Init_lr_fit, Min_lr_fit = reset_lr(opt.Init_lr, opt.Min_lr, optimizer_type, opt.backbone, opt.batch_size)
+
     optimizer = {
-            'adam'  : optim.Adam(model.parameters(), opt.Init_lr_fit, betas = (opt.momentum, 0.999), weight_decay = opt.weight_decay),
-            'adamw' : optim.AdamW(model.parameters(), opt.Init_lr_fit, betas = (opt.momentum, 0.999), weight_decay = opt.weight_decay),
-            'sgd'   : optim.SGD(model.parameters(), opt.Init_lr_fit, momentum = opt.momentum, nesterov=True, weight_decay = opt.weight_decay)
+            'adam'  : optim.Adam(model.parameters(), Init_lr_fit, betas = (opt.momentum, 0.999), weight_decay = opt.weight_decay),
+            'adamw' : optim.AdamW(model.parameters(), Init_lr_fit, betas = (opt.momentum, 0.999), weight_decay = opt.weight_decay),
+            'sgd'   : optim.SGD(model.parameters(), Init_lr_fit, momentum = opt.momentum, nesterov=True, weight_decay = opt.weight_decay)
         }[optimizer_type]   
-    return optimizer
+    return optimizer, Init_lr_fit, Min_lr_fit
 
 def generate_loader(opt):      
 

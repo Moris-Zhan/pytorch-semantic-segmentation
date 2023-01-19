@@ -167,11 +167,11 @@ def fit_unet(model_train, model, loss_history, optimizer, epoch, epoch_step, epo
             save_state_dict = model.state_dict()
         torch.save(save_state_dict, '%s/ep%03d-loss%.3f-val_loss%.3f.pth' % (loss_history.log_dir, epoch + 1, total_loss / epoch_step, val_loss / epoch_step_val))
         # best epoch weights
-        if len(loss_history.val_loss) <= 1 or (val_loss / epoch_step_val) <= min(loss_history.val_loss):
+        if len(loss_history.val_loss) <= 1 or (val_loss / val_loss/(epoch_step_val+1)) <= min(loss_history.val_loss):
             print('Save best model to best_epoch_weights.pth')
-            torch.save(model.state_dict(), os.path.join(loss_history.log_dir, "best_epoch_weights.pth"))
+            torch.save(save_state_dict, os.path.join(loss_history.log_dir, "best_epoch_weights.pth"))
         # last epoch weights
-        torch.save(model.state_dict(), os.path.join(loss_history.log_dir, "last_epoch_weights.pth"))
+        torch.save(save_state_dict, os.path.join(loss_history.log_dir, "last_epoch_weights.pth"))
 
 def fit_pspnet(model_train, model, loss_history, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, dice_loss, focal_loss, cls_weights, num_classes, opt):
     total_loss      = 0
@@ -393,11 +393,11 @@ def fit_pspnet(model_train, model, loss_history, optimizer, epoch, epoch_step, e
             save_state_dict = model.state_dict()
         torch.save(save_state_dict, '%s/ep%03d-loss%.3f-val_loss%.3f.pth' % (loss_history.log_dir, epoch + 1, total_loss / epoch_step, val_loss / epoch_step_val))
         # best epoch weights
-        if len(loss_history.val_loss) <= 1 or (val_loss / epoch_step_val) <= min(loss_history.val_loss):
+        if len(loss_history.val_loss) <= 1 or (val_loss / val_loss/(epoch_step_val+1)) <= min(loss_history.val_loss):
             print('Save best model to best_epoch_weights.pth')
-            torch.save(model.state_dict(), os.path.join(loss_history.log_dir, "best_epoch_weights.pth"))
+            torch.save(save_state_dict, os.path.join(loss_history.log_dir, "best_epoch_weights.pth"))
         # last epoch weights
-        torch.save(model.state_dict(), os.path.join(loss_history.log_dir, "last_epoch_weights.pth"))
+        torch.save(save_state_dict, os.path.join(loss_history.log_dir, "last_epoch_weights.pth"))
 
 def fit_deeplab_v3_plus(model_train, model, loss_history, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, dice_loss, focal_loss, cls_weights, num_classes, opt):
     total_loss      = 0
@@ -407,12 +407,10 @@ def fit_deeplab_v3_plus(model_train, model, loss_history, optimizer, epoch, epoc
     val_f_score     = 0
 
     Epoch, cuda, fp16, scaler, ema, local_rank = opt.end_epoch, opt.Cuda, opt.fp16, opt.scaler, opt.ema, opt.local_rank
-    model_train.train()
-
     if local_rank == 0:
         print('Start Train')
         pbar = tqdm(total=epoch_step,desc=f'Epoch {epoch + 1}/{Epoch}',postfix=dict,mininterval=0.3)
-
+    model_train.train()
     for iteration, batch in enumerate(gen):
         if iteration >= epoch_step: 
             break
@@ -424,7 +422,6 @@ def fit_deeplab_v3_plus(model_train, model, loss_history, optimizer, epoch, epoc
                 pngs    = pngs.cuda(local_rank)
                 labels  = labels.cuda(local_rank)
                 weights = weights.cuda(local_rank)
-
         optimizer.zero_grad()
         if not fp16:
             #----------------------#
@@ -532,14 +529,13 @@ def fit_deeplab_v3_plus(model_train, model, loss_history, optimizer, epoch, epoc
             _f_score    = f_score(outputs, labels)
 
             val_loss    += loss.item()
-            val_f_score += _f_score.item()
-            
+            val_f_score += _f_score.item()            
         
-        if local_rank == 0:
-            pbar.set_postfix(**{'val_loss'  : val_loss / (iteration + 1),
-                                'f_score'   : val_f_score / (iteration + 1),
-                                'lr'        : get_lr(optimizer)})
-            pbar.update(1)
+            if local_rank == 0:
+                pbar.set_postfix(**{'val_loss'  : val_loss / (iteration + 1),
+                                    'f_score'   : val_f_score / (iteration + 1),
+                                    'lr'        : get_lr(optimizer)})
+                pbar.update(1)
         
     if local_rank == 0:
         pbar.close()
@@ -556,11 +552,11 @@ def fit_deeplab_v3_plus(model_train, model, loss_history, optimizer, epoch, epoc
             save_state_dict = model.state_dict()
         torch.save(save_state_dict, '%s/ep%03d-loss%.3f-val_loss%.3f.pth' % (loss_history.log_dir, epoch + 1, total_loss / epoch_step, val_loss / epoch_step_val))
         # best epoch weights
-        if len(loss_history.val_loss) <= 1 or (val_loss / epoch_step_val) <= min(loss_history.val_loss):
+        if len(loss_history.val_loss) <= 1 or (val_loss / val_loss/(epoch_step_val+1)) <= min(loss_history.val_loss):
             print('Save best model to best_epoch_weights.pth')
-            torch.save(model.state_dict(), os.path.join(loss_history.log_dir, "best_epoch_weights.pth"))
+            torch.save(save_state_dict, os.path.join(loss_history.log_dir, "best_epoch_weights.pth"))
         # last epoch weights
-        torch.save(model.state_dict(), os.path.join(loss_history.log_dir, "last_epoch_weights.pth"))
+        torch.save(save_state_dict, os.path.join(loss_history.log_dir, "last_epoch_weights.pth"))
 
 
 def fit_segformer(model_train, model, loss_history, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, dice_loss, focal_loss, cls_weights, num_classes, opt):
@@ -720,11 +716,11 @@ def fit_segformer(model_train, model, loss_history, optimizer, epoch, epoch_step
             save_state_dict = model.state_dict()
         torch.save(save_state_dict, '%s/ep%03d-loss%.3f-val_loss%.3f.pth' % (loss_history.log_dir, epoch + 1, total_loss / epoch_step, val_loss / epoch_step_val))
         # best epoch weights
-        if len(loss_history.val_loss) <= 1 or (val_loss / epoch_step_val) <= min(loss_history.val_loss):
+        if len(loss_history.val_loss) <= 1 or (val_loss / val_loss/(epoch_step_val+1)) <= min(loss_history.val_loss):
             print('Save best model to best_epoch_weights.pth')
-            torch.save(model.state_dict(), os.path.join(loss_history.log_dir, "best_epoch_weights.pth"))
+            torch.save(save_state_dict, os.path.join(loss_history.log_dir, "best_epoch_weights.pth"))
         # last epoch weights
-        torch.save(model.state_dict(), os.path.join(loss_history.log_dir, "last_epoch_weights.pth"))
+        torch.save(save_state_dict, os.path.join(loss_history.log_dir, "last_epoch_weights.pth"))
 
 def fit_model(model_train, model, loss_history, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, dice_loss, focal_loss, cls_weights, num_classes, opt):
     total_loss      = 0
@@ -883,11 +879,11 @@ def fit_model(model_train, model, loss_history, optimizer, epoch, epoch_step, ep
             save_state_dict = model.state_dict()
         torch.save(save_state_dict, '%s/ep%03d-loss%.3f-val_loss%.3f.pth' % (loss_history.log_dir, epoch + 1, total_loss / epoch_step, val_loss / epoch_step_val))
         # best epoch weights
-        if len(loss_history.val_loss) <= 1 or (val_loss / epoch_step_val) <= min(loss_history.val_loss):
+        if len(loss_history.val_loss) <= 1 or (val_loss / val_loss/(epoch_step_val+1)) <= min(loss_history.val_loss):
             print('Save best model to best_epoch_weights.pth')
-            torch.save(model.state_dict(), os.path.join(loss_history.log_dir, "best_epoch_weights.pth"))
+            torch.save(save_state_dict, os.path.join(loss_history.log_dir, "best_epoch_weights.pth"))
         # last epoch weights
-        torch.save(model.state_dict(), os.path.join(loss_history.log_dir, "last_epoch_weights.pth"))
+        torch.save(save_state_dict, os.path.join(loss_history.log_dir, "last_epoch_weights.pth"))
 
 
 def get_fit_func(opt):

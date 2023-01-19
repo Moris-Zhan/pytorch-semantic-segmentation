@@ -4,14 +4,9 @@ sys.path.append(".")
 import torch
 import torch.nn as nn
 import numpy as np
-import time, os
-import math
-import logging
+import os
 import torch.backends.cudnn as cudnn
 
-# from visdom import Visdom
-
-# import models, datasets, utils
 import models
 
 from pynvml import *
@@ -19,6 +14,11 @@ from utils.helpers import *
 from models.script import get_fit_func
 import torch.distributed as dist
 from utils.utils_info import write_info
+from tqdm import tqdm
+from PIL import Image
+# from .utils_metrics import compute_mIoU
+from utils.utils_metrics import compute_mIoU
+
 
 
 class Trainer:
@@ -42,42 +42,48 @@ class Trainer:
 
         model = models.get_model(opt)  
         # ------------------------------------------------------------------------------- 
-        if local_rank == 0:           
-            IM_SHAPE = (opt.batch_size, opt.IM_SHAPE[2], opt.IM_SHAPE[0], opt.IM_SHAPE[1])
-            rndm_input = torch.autograd.Variable(
-                torch.rand(1, opt.IM_SHAPE[2], opt.IM_SHAPE[0], opt.IM_SHAPE[1]), 
-                requires_grad = False).cpu()
-            opt.writer.add_graph(model, rndm_input)         
+        # if local_rank == 0:           
+        #     IM_SHAPE = (opt.batch_size, opt.IM_SHAPE[2], opt.IM_SHAPE[0], opt.IM_SHAPE[1])
+        #     rndm_input = torch.autograd.Variable(
+        #         torch.rand(1, opt.IM_SHAPE[2], opt.IM_SHAPE[0], opt.IM_SHAPE[1]), 
+        #         requires_grad = False).cpu()
+        #     opt.writer.add_graph(model, rndm_input)         
 
-            write_info(opt.out_path, model, IM_SHAPE, "model.txt")  
+        #     write_info(opt.out_path, model, IM_SHAPE, "model.txt")  
         # ------------------------------------------------------------------------------
         # ------------------------------------------------------------------------------
         if opt.model_path != '':
             #------------------------------------------------------#
             #   權值文件請看README，百度網盤下載
             #------------------------------------------------------#
-            print('Load weights {}.'.format(opt.model_path))
-            device          = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            if local_rank == 0: print('Load weights {}.'.format(opt.model_path))
+            # device          = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            # model_dict      = model.state_dict()
+            # pretrained_dict = torch.load(opt.model_path, map_location = device)
+            # pretrained_dict = {k: v for k, v in pretrained_dict.items() if np.shape(model_dict[k]) == np.shape(v)}
+            # model_dict.update(pretrained_dict)
+            # model.load_state_dict(model_dict)
+            #------------------------------------------------------#
+            #   根据预训练权重的Key和模型的Key进行加载
+            #------------------------------------------------------#
             model_dict      = model.state_dict()
             pretrained_dict = torch.load(opt.model_path, map_location = device)
-            pretrained_dict = {k: v for k, v in pretrained_dict.items() if np.shape(model_dict[k]) == np.shape(v)}
-            model_dict.update(pretrained_dict)
+            load_key, no_load_key, temp_dict = [], [], {}
+            for k, v in pretrained_dict.items():
+                if k in model_dict.keys() and np.shape(model_dict[k]) == np.shape(v):
+                    temp_dict[k] = v
+                    load_key.append(k)
+                else:
+                    no_load_key.append(k)
+            model_dict.update(temp_dict)
             model.load_state_dict(model_dict)
         # ------------------------------------------------------------------------------
-        # model.train()  
-
-        # self.model = model
-        model_train = model.train()      
-        #-------------------------------------------------------------------#
-        #   判断当前batch_size与64的差别，自适应调整学习率
-        #-------------------------------------------------------------------#
-        nbs         = 64
-        opt.Init_lr_fit = max(opt.batch_size / nbs * opt.Init_lr, 1e-4)
-        opt.Min_lr_fit  = max(opt.batch_size / nbs * opt.Min_lr, 1e-6)
-
-        self.optimizer = models.get_optimizer(model, opt, opt.optimizer_type)
-        self.lr_scheduler_func = get_lr_scheduler(opt.lr_decay_type, opt.Init_lr_fit, opt.Min_lr_fit, opt.UnFreeze_Epoch)
-
+        model_train = model.train()     
+        self.optimizer, Init_lr_fit, Min_lr_fit = models.get_optimizer(model, opt, opt.optimizer_type)
+        #---------------------------------------#
+        #   获得学习率下降的公式
+        #---------------------------------------#
+        self.lr_scheduler_func = get_lr_scheduler(opt.lr_decay_type, Init_lr_fit, Min_lr_fit, opt.UnFreeze_Epoch)
         #---------------------------------------#
         #   判断每一个世代的长度
         #---------------------------------------#
@@ -132,7 +138,8 @@ class Trainer:
         #----------------------------#
         #   权值平滑
         #----------------------------#
-        opt.ema = ModelEMA(self.model_train)
+        # opt.ema = ModelEMA(self.model_train)
+        opt.ema = None
         opt.local_rank = local_rank
         self.opt = opt
 
@@ -166,25 +173,13 @@ class Trainer:
                 batch_size = self.opt.Unfreeze_batch_size   
                 self.opt.end_epoch = self.opt.UnFreeze_Epoch
                 #-----------------------------------------------------------------------------------------#
-                self.optimizer = models.get_optimizer(self.model, self.opt, 'adam')                                          
+                self.optimizer, Init_lr_fit, Min_lr_fit = models.get_optimizer(self.model, self.opt, 'adam')
+                self.lr_scheduler_func = get_lr_scheduler(self.opt.lr_decay_type, Init_lr_fit, Min_lr_fit, self.opt.UnFreeze_Epoch)
                 #-----------------------------------------------------------------------------------------#
                 self.loss_history.set_status(freeze=False)
                 self.model.unfreeze_backbone()   
                 self.loss_history.reset_stop() 
-                #-----------------------------------------------------------------------------------------#
-                #   判断当前batch_size，自适应调整学习率
-                #-------------------------------------------------------------------#
-                nbs             = 16
-                lr_limit_max    = 1e-4 if self.opt.optimizer_type in ['adam', 'adamw'] else 5e-2
-                lr_limit_min    = 3e-5 if self.opt.optimizer_type in ['adam', 'adamw'] else 5e-4
-                Init_lr_fit     = min(max(batch_size / nbs * self.opt.Init_lr, lr_limit_min), lr_limit_max)
-                Min_lr_fit      = min(max(batch_size / nbs * self.opt.Min_lr, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
 
-                #---------------------------------------#
-                #   获得学习率下降的公式
-                #---------------------------------------#
-                self.lr_scheduler_func = get_lr_scheduler(self.opt.lr_decay_type, Init_lr_fit, Min_lr_fit, self.opt.UnFreeze_Epoch)
-                                                     
                 epoch_step      = self.opt.num_train // batch_size
                 epoch_step_val  = self.opt.num_val // batch_size
 
@@ -206,8 +201,35 @@ class Trainer:
             self.fit_one_epoch(self.model_train, self.model, self.loss_history, self.optimizer, epoch, \
                         self.epoch_step, self.epoch_step_val, self.train_loader, self.test_loader, \
                         self.opt.dice_loss, self.opt.focal_loss, self.opt.cls_weights, self.opt.num_classes, self.opt)           
-            
-            
+
+            if epoch > 0 and epoch % 5 == 0:
+                print("Get miou.")
+                image_ids       = self.opt.val_lines
+                gt_dir          = os.path.join(self.opt.data_path, "test/mask_annotations/")
+                miou_out_path   = os.path.join(self.opt.out_path, "miou_out")
+
+                pred_dir    = os.path.join(miou_out_path, 'detection-results')
+                os.makedirs(pred_dir, exist_ok=True)
+                print("Load model.")
+                m = self.opt.Model_Pred()
+                print("Load model done.")
+                for image_id in tqdm(image_ids):
+                    #-------------------------------#
+                    #   从文件中读取图像
+                    #-------------------------------#
+                    image_id = image_id.split(" ")[0]
+                    # image_path  = os.path.join(self.dataset_path, "VOC2007/JPEGImages/"+image_id+".jpg")
+                    image_path  = os.path.join(image_id+".jpg")
+                    image       = Image.open(image_path)
+                    #------------------------------#
+                    #   获得预测txt
+                    #------------------------------#
+                    image       = m.get_miou_png(image)
+                    image.save(os.path.join(pred_dir, os.path.basename(image_id) + ".png"))
+                    
+                print("Calculate miou.")            
+                compute_mIoU(gt_dir, pred_dir, image_ids, self.opt.num_classes, None)  # 执行计算mIoU的函数
+                
             if self.opt.distributed:
                 dist.barrier()
 

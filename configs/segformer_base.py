@@ -55,8 +55,8 @@ def get_opts(Train=True):
     #   8下采樣的倍數較小、理論上效果更好，但也要求更大的顯存
     #---------------------------------------------------------#
     #------------------------------------------------------------------#
-    opt.Cosine_lr           = False
-    opt.label_smoothing     = 0
+    
+    
     #----------------------------------------------------#
     #   凍結階段訓練參數
     #   此時模型的主幹被凍結了，特征提取網絡不發生改變
@@ -66,7 +66,6 @@ def get_opts(Train=True):
     opt.Init_Epoch          = 0
     opt.Freeze_Epoch    = 50 #50
     opt.Freeze_batch_size   = int(16/2)
-    opt.Freeze_lr           = 1e-3
     #----------------------------------------------------#
     #   解凍階段訓練參數
     #   此時模型的主幹不被凍結了，特征提取網絡會發生改變
@@ -74,7 +73,6 @@ def get_opts(Train=True):
     #----------------------------------------------------#
     opt.UnFreeze_Epoch  = 100 #100
     opt.Unfreeze_batch_size = int(16/1)
-    opt.Unfreeze_lr         = 1e-4
     #------------------------------------------------------#
     #   是否進行凍結訓練，默認先凍結主幹訓練後解凍訓練。
     #------------------------------------------------------#
@@ -168,8 +166,8 @@ def get_opts(Train=True):
         opt.writer = SummaryWriter(log_dir=os.path.join(opt.out_path, "tensorboard"))
         init_logging(opt.local_rank, opt.out_path)    
     else:
-        from seg_model.segformer.segformer import SegFormer
-        opt.Model_Pred = SegFormer 
+        from seg_model.segformer.segformer import SegFormer_Segmentation
+        opt.Model_Pred = SegFormer_Segmentation 
     return opt
 
 if __name__ == "__main__":    

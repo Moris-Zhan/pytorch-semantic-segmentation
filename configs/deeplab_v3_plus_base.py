@@ -8,7 +8,21 @@ from torch.utils.tensorboard import SummaryWriter
 from utils.tools import init_logging
 import importlib
 from utils.helpers import get_data 
+import numpy as np
 
+def reset_lr(Init_lr, Min_lr, optimizer_type, backbone, batch_size):
+    #-----------------------------------------------------------------------------------------#
+    #   判断当前batch_size，自适应调整学习率
+    #-------------------------------------------------------------------#                
+    nbs             = 16
+    lr_limit_max    = 5e-4 if optimizer_type == 'adam' else 1e-1
+    lr_limit_min    = 3e-4 if optimizer_type == 'adam' else 5e-4
+    if backbone == "xception":
+        lr_limit_max    = 1e-4 if optimizer_type == 'adam' else 1e-1
+        lr_limit_min    = 1e-4 if optimizer_type == 'adam' else 5e-4
+    Init_lr_fit     = min(max(batch_size / nbs * Init_lr, lr_limit_min), lr_limit_max)
+    Min_lr_fit      = min(max(batch_size / nbs * Min_lr, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
+    return Init_lr_fit, Min_lr_fit
 
 def get_opts(Train=True):
     opt = argparse.Namespace()  
@@ -28,7 +42,7 @@ def get_opts(Train=True):
     # importlib.import_module("annotation.{}".format(opt.exp_name)).get_annotation(opt.data_root) 
 
     opt.data_path, opt.num_classes, opt.cls_weights, _ = get_data(opt.data_root, opt.exp_name)
-
+    # opt.cls_weights     = np.ones([opt.num_classes], np.float32)
     #---------------------------#
     #   讀取數據集對應的txt
     #---------------------------#
@@ -41,9 +55,10 @@ def get_opts(Train=True):
     opt.num_val     = len(opt.val_lines)     
     #############################################################################################    
     opt.net = 'deeplab_v3_plus'     # [unet, pspnet, segnet, fcn, deconvnet, fpn, deeplab_v3, deeplab_v3_plus, segformer]
+    # opt.model_path  = "model_data/deeplab_xception.pth" # deeplabv3_plus
     opt.model_path  = "model_data/deeplab_mobilenetv2.pth" # deeplabv3_plus
     opt.input_shape         = [512, 512] 
-    opt.backbone    = "mobilenet"
+    opt.backbone    = "mobilenet" # [mobilenet, xception]
     opt.pretrained      = True
     opt.IM_SHAPE = (opt.input_shape[0], opt.input_shape[1], 3)
     #------------------------------------------------------#
@@ -57,8 +72,8 @@ def get_opts(Train=True):
     #---------------------------------------------------------#
     opt.downsample_factor   = 16   
     #------------------------------------------------------------------#
-    opt.Cosine_lr           = False
-    opt.label_smoothing     = 0
+    
+    
     #----------------------------------------------------#
     #   凍結階段訓練參數
     #   此時模型的主幹被凍結了，特征提取網絡不發生改變
@@ -68,15 +83,13 @@ def get_opts(Train=True):
     opt.Init_Epoch          = 0
     opt.Freeze_Epoch    = 50 #50
     opt.Freeze_batch_size   = int(16/2)
-    opt.Freeze_lr           = 1e-3
     #----------------------------------------------------#
     #   解凍階段訓練參數
     #   此時模型的主幹不被凍結了，特征提取網絡會發生改變
     #   占用的顯存較大，網絡所有的參數都會發生改變
     #----------------------------------------------------#
     opt.UnFreeze_Epoch  = 100 #100
-    opt.Unfreeze_batch_size = int(16/1)
-    opt.Unfreeze_lr         = 1e-4
+    opt.Unfreeze_batch_size = int(4/1)
     #------------------------------------------------------#
     #   是否進行凍結訓練，默認先凍結主幹訓練後解凍訓練。
     #------------------------------------------------------#
@@ -87,7 +100,7 @@ def get_opts(Train=True):
     #   種類多（十幾類）時，如果batch_size比較大（10以上），那麼設置為True
     #   種類多（十幾類）時，如果batch_size比較小（10以下），那麼設置為False
     #---------------------------------------------------------------------# 
-    opt.dice_loss       = False
+    opt.dice_loss       = True
     #---------------------------------------------------------------------# 
     #   是否使用focal loss來防止正負樣本不平衡
     #---------------------------------------------------------------------# 
@@ -103,16 +116,15 @@ def get_opts(Train=True):
     #   Init_lr         模型的最大学习率
     #   Min_lr          模型的最小学习率，默认为最大学习率的0.01
     #------------------------------------------------------------------#
-    opt.Init_lr             = 1e-2
+    opt.Init_lr             = 7e-3
     opt.Min_lr              = opt.Init_lr * 0.01
     #------------------------------------------------------------------#
     #   lr_decay_type   使用到的学习率下降方式，可选的有step、cos
     #------------------------------------------------------------------#
     opt.lr_decay_type       = "cos"
-    opt.weight_decay    = 5e-4
-    opt.gamma           = 0.94
+    opt.weight_decay    = 1e-4
     opt.optimizer_type      = "sgd"
-    opt.momentum            = 0.937
+    opt.momentum            = 0.9
     #------------------------------------------------------#
     #   是否提早結束。
     #------------------------------------------------------#
@@ -148,7 +160,7 @@ def get_opts(Train=True):
     #       设置            distributed = True
     #       在终端中输入    CUDA_VISIBLE_DEVICES=0,1 python -m torch.distributed.launch --nproc_per_node=2 train.py
     #------------------------------------------------------#
-    opt.num_workers         = 4
+    opt.num_workers         = 8
     opt.Cuda                = True
     opt.distributed         = True
     opt.sync_bn             = True
@@ -169,9 +181,10 @@ def get_opts(Train=True):
     if Train:
         opt.writer = SummaryWriter(log_dir=os.path.join(opt.out_path, "tensorboard"))
         init_logging(opt.local_rank, opt.out_path)    
-    else:
-        from seg_model.deeplabv3_plus.deeplabv3_plus import DeeplabV3
-        opt.Model_Pred = DeeplabV3
+
+    from seg_model.deeplabv3_plus.deeplabv3_plus import DeeplabV3
+    opt.Model_Pred = DeeplabV3
+    
     return opt
 
 if __name__ == "__main__":    
