@@ -156,6 +156,9 @@ python predict.py
 ```python
 python export.py --config "configs.yolact_base"
 ```
+## Demo
+![40c](https://user-images.githubusercontent.com/24097516/213660591-6d6da80e-c154-40aa-ae5e-4adc5613c35f.jpg)
+
 
 ## Reference
 - U-Net :  https://github.com/bubbliiiing/unet-pytorch
