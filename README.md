@@ -12,84 +12,84 @@ I used 5 different datases: **`Cityscapes`, `COCO`, `Pascal VOC`, `ICME2022` and
 - **VOC**:
   Download the voc images and annotations from [VOC2007](http://host.robots.ox.ac.uk/pascal/VOC/voc2007) or [VOC2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012). Make sure to put the files as the following structure:
 
--- VOC2007
-![](https://i.imgur.com/wncA2wC.png)
+  | Dataset                | Classes | #Train images/objects | #Validation images/objects |
+  |------------------------|:---------:|:-----------------------:|:----------------------------:|
+  | VOC2007                |    20   |      5011/12608       |           4952/-           |
+  | VOC2012                |    20   |      5717/13609       |           5823/13841       |
 
--- VOC2012
-![](https://i.imgur.com/v3AQelB.png)
+  -- VOC2007
+  * ![](https://i.imgur.com/wncA2wC.png)
 
-  
-  
-| Dataset                | Classes | #Train images/objects | #Validation images/objects |
-|------------------------|:---------:|:-----------------------:|:----------------------------:|
-| VOC2007                |    20   |      209/633       |          213/582        |
-| VOC2012                |    20   |      1464/3507     |         1449/3422       |
+  -- VOC2012
+  * ![](https://i.imgur.com/v3AQelB.png)
 
   ```
   VOCDevkit
   ├── VOC2007
-  │   ├── JPEGImages  
-  │   ├── SegmentationClass
-  │   ├── ...
+  │   ├── Annotations  
+  │   ├── ImageSets
+  │   ├── JPEGImages
   │   └── ...
   └── VOC2012
-      ├── JPEGImages  
-      ├── SegmentationClass
-      ├── ...
+      ├── Annotations  
+      ├── ImageSets
+      ├── JPEGImages
       └── ...
   ```
+  Processed File: [download link](https://1drv.ms/u/s!AvbkzP-JBXPAhk51a2a6DLg_Hgub?e=PhUN2s)
   
 - **COCO**:
   Download the coco images and annotations from [coco website](http://cocodataset.org/#download). Make sure to put the files as the following structure:
 
-| Dataset                | Classes | #Train images/objects | #Validation images/objects |
-|------------------------|:---------:|:-----------------------:|:----------------------------:|
-| COCO2014               |    21   |         64k/-         |            31k/-           |
-| COCO2017               |    21   |         92k/-        |             3k/-           |
-```
-  COCO
-  ├── annotations
-  │   ├── instances_train2014.json
-  │   ├── instances_train2017.json
-  │   ├── instances_val2014.json
-  │   └── instances_val2017.json
-  │── images
-  │   ├── train2014
-  │   ├── train2017
-  │   ├── val2014
-  │   └── val2017
-  └── mask
-      ├── train2014
-      ├── train2017
-      ├── val2014
-      └── val2017
-```
+  | Dataset                | Classes | #Train images/objects | #Validation images/objects |
+  |------------------------|:---------:|:-----------------------:|:----------------------------:|
+  | COCO2014               |    21   |         64k/-         |            31k/-           |
+  | COCO2017               |    21   |         92k/-        |             3k/-           |
+  ```
+    COCO
+    ├── annotations
+    │   ├── instances_train2014.json
+    │   ├── instances_train2017.json
+    │   ├── instances_val2014.json
+    │   └── instances_val2017.json
+    │── images
+    │   ├── train2014
+    │   ├── train2017
+    │   ├── val2014
+    │   └── val2017
+    └── mask
+        ├── train2014
+        ├── train2017
+        ├── val2014
+        └── val2017
+  ```
+  Processed File: [download link](https://1drv.ms/f/s!AvbkzP-JBXPAhlDiyVy9wsDGCCj8?e=nN58aZ)
 
 - **Cityscapes**:
-The Cityscapes Dataset focuses on semantic understanding of urban street scenes. In the following, we give an overview on the design choices that were made to target the dataset’s focus.
+  The Cityscapes Dataset focuses on semantic understanding of urban street scenes. In the following, we give an overview on the design choices that were made to target the dataset’s focus.
 
-![](https://i.imgur.com/Dgi4K9S.png)
+  ![](https://i.imgur.com/Dgi4K9S.png)
 
 
 
-  Download the container images and annotations from [cityscapes](https://www.cityscapes-dataset.com/downloads/). Make sure to put the files as the following structure:
- ![](https://i.imgur.com/rRJSIYQ.png)
-![](https://i.imgur.com/L3bVJFM.png)  
+  * Download the container images and annotations from [cityscapes](https://www.cityscapes-dataset.com/downloads/). Make sure to put the files as the following structure:
+  ![](https://i.imgur.com/rRJSIYQ.png)
+  ![](https://i.imgur.com/L3bVJFM.png)  
 
-```
-  Cityscapes
-  ├── leftImg8bit
-  │   ├── train
-  │   ├── val
-  │   ├── test  
-  │     
-  │── gtFine_trainvaltest
-      ├── gtFine
-          ├── train
-          ├── val
-          ├── test 
-```
-
+  ```
+    Cityscapes
+    ├── leftImg8bit
+    │   ├── train
+    │   ├── val
+    │   ├── test  
+    │     
+    │── gtFine_trainvaltest
+        ├── gtFine
+            ├── train
+            ├── val
+            ├── test 
+  ```
+  Processed File: [download link](https://1drv.ms/f/s!AvbkzP-JBXPAhXTyBj-UrLv2GThN?e=ZHBY6g)
 
 
 ## Methods
@@ -102,6 +102,7 @@ The Cityscapes Dataset focuses on semantic understanding of urban street scenes.
 - **DeepLabV3**
 - **DeepLabv3_plus**
 - **Segformer**
+#### Pretrain-Weights [download link](https://1drv.ms/f/s!AvbkzP-JBXPAhgigoX-tEdJu4oli?e=DnqPvR)
 
 ## Prerequisites
 * **Windows 10**
@@ -123,13 +124,13 @@ pip install -r requirements.txt -f https://download.pytorch.org/whl/torch_stable
 ### 1. Prepare the dataset
 * **Create your own `annotation.{dataset}.py` then create `Segmentation/train.txt` , `Segmentation/val.txt` let data to load.** 
 * **Prepare pretrain download weight to `model_data` .** 
-* **Add new data in `helps/choose_data.py`. **
+* **Add new data in `helps/choose_data.py`.**
 
 ### 2. Create own model
 * **Copy `seg_model` directory and write self required function, like `dataset_collate, Dataset, freeze_backbone, unfreeze_backbone`... etc.** 
-* **Maintaion self directory like `nets, utils`. ** 
-* **Maintaion self detection configuration file like `model.py`. ** 
-* **Add new data in `helps/choose_model.py`. **
+* **Maintaion self directory like `nets, utils`.** 
+* **Maintaion self detection configuration file like `model.py`.** 
+* **Add new data in `helps/choose_model.py`.**
 
 ### 3. Train (Freeze backbone + UnFreeze backbone) 
 * setup your `root_path` , choose `DataType` and switch segmentation model library import.
